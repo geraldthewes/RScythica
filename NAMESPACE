@@ -1,0 +1,3 @@
+useDynLib(RScythica)
+exportPattern("^[[:alpha:]]+")
+import(Rcpp)
