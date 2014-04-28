@@ -25,11 +25,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 
-#include <Rcpp.h>
-
 #include <yaml-cpp/yaml.h>
 
 #include "SDataframe.hpp"
+#include "SColBuffer.hpp"
+#include "SPartitionCols.hpp"
 
 using namespace Rcpp;
 using namespace boost::filesystem;
@@ -37,6 +37,17 @@ using namespace boost::filesystem;
 
 const string DF_SCHEMA = "/schema.cfg";
 const string DF_DATA_DIR = "/data";
+const string DF_SEP = "/";
+const string DF_PDB = "pdb.key";
+
+const string SDF_Integer32 = "int32";
+const string SDF_Float = "float";
+const string SDF_Double = "double";
+const string SDF_Date = "date";
+const string SDF_Character = "character";
+const string SDF_Factor = "factor";
+const string SDF_Boolean = "boolean";
+const string SDF_Integer64 = "int64";
 
 
 SDataframe::SDataframe(string path) {
@@ -81,6 +92,10 @@ int SDataframe::rowSplit() {
   return 1;
 }
 
+string SDataframe::path() {
+  return path_;
+}
+
 std::vector<string> SDataframe::names() {
   std::vector<string> names;
   names.resize(ncol());
@@ -112,13 +127,41 @@ std::vector<string> SDataframe::partitions() {
   return partitions;
 }
 
-Rcpp::IntegerVector SDataframe::intvec(string pkey, int pos) {
-  Rcpp::IntegerVector v;
 
-  boost::iostreams::mapped_file_source buffer;
+int SDataframe::partitionRows(string pkey) {
+  SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
+
+  int rows = partition.nrow();
+
+  return rows;
+}
+
+Rcpp::IntegerVector SDataframe::intvec(string pkey, int pos) {
+  //Rcpp::IntegerVector v;
+
+
+  SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
+
+  int rows = partition.nrow();
+
+
+
+  string coltype = columns_[pos].coltype();
+
+  string path = path_ + DF_DATA_DIR + DF_SEP + pkey + DF_SEP
+    + columns_[pos].colname() ;
+
+  if (coltype == SDF_Integer32) {
+    SColBuffer<int32_t> colbuf(rows,path);
+
+    int32_t *data = colbuf.data();
+
+    std::vector<int32_t> vraw(data,data+rows);
+    return Rcpp::wrap(vraw);
+  }
   
 
-  return v;
+  return Rcpp::IntegerVector();
 }
 
 
@@ -129,6 +172,7 @@ RCPP_MODULE(rscythica) {
     .method("ncol",&SDataframe::ncol)
     .method("names",&SDataframe::names)
     .method("partitions",&SDataframe::partitions)
+    .method("partition_rows",&SDataframe::partitionRows)
     .method("intvec",&SDataframe::intvec)
     ;
 }

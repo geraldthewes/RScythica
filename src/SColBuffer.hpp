@@ -21,26 +21,47 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef SDS_COLUMNDEF_H
-#define SDS_COLUMNDEF_H
 
-#include <string>
+#include <vector>
+#include <boost/iostreams/device/mapped_file.hpp>
+
+#include "SdsColumndef.hpp"
 
 using namespace std;
 
-class SdsColumndef {
+
+// Hold one column buffer
+
+template <class T> class SColBuffer {
 private:
-  string    colname_;
-  string    coltype_;
-  string    attributes_;
+
+int rows_;
+
+boost::filesystem::path path_;
+boost::iostreams::mapped_file_source buffer_;
+
+  
 
 public:
-  SdsColumndef();
-  SdsColumndef(string name, string type, string attributes);
-  string colname();
-  string coltype();
-  string attributes();
+  // Load data frame identified by path
+  SColBuffer(int rows, string path) : rows_(rows), path_(path) {
+    int numberOfBytes = rows_ * sizeof(T);
+
+    buffer_.open(path_,numberOfBytes);
+}
+
+  ~SColBuffer() {
+    buffer_.close();
+  }
+
+  T *data() {
+    if (buffer_.is_open()) {
+      return (T *)buffer_.data();
+    } else {
+      string msg = "map file is not open :" + path_.string();
+      throw new std::runtime_error(msg);
+    }
+    return NULL;
+  }
 
 };
-
-#endif  // SDS_COLUMNDEF_H

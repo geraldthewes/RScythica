@@ -21,26 +21,30 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef SDS_COLUMNDEF_H
-#define SDS_COLUMNDEF_H
+#ifndef SDS_PARTITIONCOLS_H
+#define SDS_PARTITIONCOLS_H
 
 #include <string>
 
+
 using namespace std;
 
-class SdsColumndef {
+class SdsPartitionCols {
 private:
-  string    colname_;
-  string    coltype_;
-  string    attributes_;
+  SDataframe    &schema_;
+  string        pkey_;
+  int64_t       nrow_;
+
+  int64_t       getRowFromLevelDB();
+  int64_t       getRowFromMsgPack();
 
 public:
-  SdsColumndef();
-  SdsColumndef(string name, string type, string attributes);
-  string colname();
-  string coltype();
-  string attributes();
+  SdsPartitionCols(SDataframe &schema, string pkey);
+  ~SdsPartitionCols();
+
+  int64_t      nrow();
+
 
 };
 
-#endif  // SDS_COLUMNDEF_H
+#endif  // SDS_PARTITIONCOLS_H
