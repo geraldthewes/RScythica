@@ -38,6 +38,12 @@ const string DB_NROW = "nrow";
 const string DF_MP = "db.mp";
 
 
+/*
+
+Class handling a single partition. 
+
+*/
+
 SdsPartitionCols::SdsPartitionCols(SDataframe &schema, string pkey) : 
   schema_(schema), pkey_(pkey), nrow_(0) {
   
@@ -138,3 +144,4 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
   return nrow;
 
 }
+

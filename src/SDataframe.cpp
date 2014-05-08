@@ -136,14 +136,14 @@ int SDataframe::partitionRows(string pkey) {
   return rows;
 }
 
-Rcpp::IntegerVector SDataframe::intvec(string pkey, int pos) {
+SEXP SDataframe::intvec(string pkey, int pos) {
   //Rcpp::IntegerVector v;
 
 
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 
   int rows = partition.nrow();
-
+  pos += 1; // R is 1 based
 
 
   string coltype = columns_[pos].coltype();
@@ -154,14 +154,18 @@ Rcpp::IntegerVector SDataframe::intvec(string pkey, int pos) {
   if (coltype == SDF_Integer32) {
     SColBuffer<int32_t> colbuf(rows,path);
 
-    int32_t *data = colbuf.data();
+    //int32_t *data = colbuf.data();
 
-    std::vector<int32_t> vraw(data,data+rows);
-    return Rcpp::wrap(vraw);
+    //std::vector<int32_t> vraw(data,data+rows);
+    //return Rcpp::wrap(vraw);
+    return colbuf.vector();
+    
+
   }
   
 
-  return Rcpp::IntegerVector();
+  //return Rcpp::IntegerVector();
+  return R_NilValue;
 }
 
 

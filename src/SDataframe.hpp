@@ -34,7 +34,8 @@ public:
   int partitionRows(string pkey);
 
   // Return intvec at pos
-  Rcpp::IntegerVector intvec(string pkey, int pos);
+  //Rcpp::IntegerVector intvec(string pkey, int pos);
+  SEXP intvec(string pkey, int pos);
 
   // Rownames partion+offset
 
