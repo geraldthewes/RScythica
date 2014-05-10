@@ -23,6 +23,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #include "MapAllocator.hpp"
 
@@ -44,6 +48,28 @@ R_allocator MapAllocator::createRAllocator() {
   return allocator;
 }
 
+MapAllocator *MapAllocator::mapChunk(std::string path,
+		      size_t numberOfBytes) {
+  int fd = open(path.c_str(), O_RDONLY);
+  if (fd == -1) return NULL;
+
+    char *base = (char *)mmap(NULL,
+		  numberOfBytes,
+		  PROT_READ | PROT_WRITE,
+		  MAP_PRIVATE | MAP_NORESERVE,
+		  fd,
+		  0);
+
+    if (base == MAP_FAILED) return NULL;
+
+    // Create allocator with memory
+    rscythica::MapAllocator *allocator = new(base) rscythica::MapAllocator();
+    allocator->setFd(fd);
+    allocator->setLength(numberOfBytes);
+
+}
+
+
 void *MapAllocator::alloc(R_allocator_t *allocator, size_t size) {
   
 
@@ -55,14 +81,13 @@ void *MapAllocator::alloc(R_allocator_t *allocator, size_t size) {
 }
 
 void MapAllocator::free(R_allocator_t *allocator, void *loc) {
-  // $$$ Does not work
-  //MapAllocator *salloc = new(allocator) MapAllocator();
-  //size_t len = salloc->length();
-  //int fd = salloc->fd();
+  MapAllocator *salloc = new(allocator->data) MapAllocator();
+  size_t len = salloc->length();
+  int fd = salloc->fd();
 
-  //int status = munmap(allocator->data, len);
+  int status = munmap(allocator->data, len);
     
-  //status = close(fd);
+  status = close(fd);
 
   // Check that R does not address the space after the free :-)
 }

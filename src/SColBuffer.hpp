@@ -25,10 +25,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include <vector>
 //#include <boost/iostreams/device/mapped_file.hpp>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <fcntl.h>
+//#include <sys/mman.h>
 
 
 
@@ -66,7 +66,7 @@ private:
 public:
   // Load data frame identified by path
   SColBuffer(int rows, string path) : rows_(rows), path_(path), base_(NULL), vec_(R_NilValue) {
-    int numberOfBytes = rows_ * sizeof(T) + HEADER_PAD_BYTES;
+    size_t numberOfBytes = rows_ * sizeof(T) + HEADER_PAD_BYTES;
 
     //struct boost::iostreams::mapped_file_params params;
     //params.path = path_;
@@ -80,24 +80,27 @@ public:
     //buffer_.open(path_,numberOfBytes);
     //buffer_.open(params);
 
-    int fd = open(path.c_str(), O_RDONLY);
-    if (fd == -1) return;
+    //int fd = open(path.c_str(), O_RDONLY);
+    //if (fd == -1) return;
 
-    char *base = (char *)mmap(NULL,
-		  numberOfBytes,
-		  PROT_READ | PROT_WRITE,
-		  MAP_PRIVATE | MAP_NORESERVE,
-		  fd,
-		  0);
-    if (base == MAP_FAILED) return;
-    base_ = (void *)base;
+    //char *base = (char *)mmap(NULL,
+    //		  numberOfBytes,
+    //		  PROT_READ | PROT_WRITE,
+    //		  MAP_PRIVATE | MAP_NORESERVE,
+    //		  fd,
+    //		  0);
+    //if (base == MAP_FAILED) return;
+    //base_ = (void *)base;
 
-    //R_allocator *allocator_addr = (R_allocator *)(base +HEADER_PAD_BYTES - SIZEOF_SEXPREC-sizeof(rscythica::MapAllocator)); 
+    rscythica::MapAllocator  *allocator = 
+      rscythica::MapAllocator::mapChunk(path,numberOfBytes);
+
+    if (allocator == NULL) return;
 
     // Create allocator with memory
-    rscythica::MapAllocator *allocator = new(base_) rscythica::MapAllocator();
-    allocator->setFd(fd);
-    allocator->setLength(numberOfBytes);
+    //rscythica::MapAllocator *allocator = new(base_) rscythica::MapAllocator();
+    //allocator->setFd(fd);
+    //allocator->setLength(numberOfBytes);
 
     R_allocator rallocator = allocator->createRAllocator();
 

@@ -46,6 +46,9 @@ public:
   static void *alloc(R_allocator_t *allocator, size_t size);
   static void free(R_allocator_t *allocator, void *loc);
 
+  static MapAllocator *mapChunk(std::string path,
+				size_t numberOfBytes);
+
   inline size_t length() { return length_;}
   inline void setLength(size_t size) {length_ = size; }
 

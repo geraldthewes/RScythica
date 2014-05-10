@@ -156,17 +156,16 @@ SEXP SDataframe::intvec(string pkey, int pos) {
       return colbuf.vector();      
     }
 
-    //int32_t *data = colbuf.data();
 
-    //std::vector<int32_t> vraw(data,data+rows);
-    //return Rcpp::wrap(vraw);
-
-    
 
   }
   
-
+  //int32_t *data = colbuf.data();
+  //std::vector<int32_t> vraw(data,data+rows);
+  //return Rcpp::wrap(vraw);
   //return Rcpp::IntegerVector();
+
+
   return R_NilValue;
 }
 
