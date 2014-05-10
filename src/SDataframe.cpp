@@ -31,6 +31,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "SColBuffer.hpp"
 #include "SPartitionCols.hpp"
 
+#include <Rinternals.h>
+
 using namespace Rcpp;
 using namespace boost::filesystem;
 using namespace rscythica;
@@ -152,10 +154,14 @@ SEXP SDataframe::intvec(string pkey, int pos) {
       + columns_[pos].colname() ;
 
     if (coltype == SDF_Integer32) {
-      SColBuffer<int32_t> colbuf(rows,path);
-      return colbuf.vector();      
+      rscythica::SColBuffer colbuf(rows,path, INTSXP,sizeof(int32_t));
+      return colbuf.vectorSexp();      
     }
 
+    if (coltype == SDF_Double) {
+      rscythica::SColBuffer colbuf(rows,path, REALSXP, sizeof(double));
+      return colbuf.vectorSexp();      
+    }
 
 
   }

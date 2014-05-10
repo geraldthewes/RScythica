@@ -24,32 +24,37 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include <Rcpp.h>  
+
+
 #include <Rinternals.h>
 
-//#include "SdsColumndef.hpp"
+#include "SdsColumndef.hpp"
+#include "MapAllocator.hpp"
+#include "SColBuffer.hpp"
+
 
 using namespace std;
+using namespace rscythica;
 
-namespace rscythica {
+  // Load data frame identified by path
+SColBuffer::SColBuffer(int rows, 
+		       string path,
+		       SEXPTYPE type,
+		       size_t size) : rows_(rows), path_(path), size_(size), vec_(R_NilValue) {
+    size_t numberOfBytes = rows_ * size + HEADER_PAD_BYTES;
 
-  // Manage column buffer
-  
-  class SColBuffer {
-  private:
+
+    rscythica::MapAllocator  *allocator = 
+      rscythica::MapAllocator::mapChunk(path,numberOfBytes);
+
+    if (allocator == NULL) return;
+
+    R_allocator rallocator = allocator->createRAllocator();
+
+    // Now allocate with R
+    vec_ = Rf_allocVector3(INTSXP, 
+			rows_,
+			(R_allocator *)&rallocator);
     
-    int rows_;
-    size_t size_;
-    string path_;
-    SEXP  vec_;
-
-  public:
-    // Load data frame identified by path
-    SColBuffer(int rows, 
-	       string path,
-	       SEXPTYPE type,
-	       size_t size);
-
-    inline SEXP vectorSexp() { return vec_; }
-
-  };
 }
+
