@@ -38,14 +38,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Rinternals.h>
 
 #include "SdsColumndef.hpp"
-#include "RMMapAllocator.hpp"
+#include "MapAllocator.hpp"
 
 // 64 bit 
 #define SIZEOF_SEXPREC 56
 
 
 using namespace std;
-
+using namespace rscythica;
 
 // Hold one column buffer
 
@@ -92,17 +92,19 @@ public:
     if (base == MAP_FAILED) return;
     base_ = (void *)base;
 
-    R_allocator *allocator_addr = (R_allocator *)(base +HEADER_PAD_BYTES - SIZEOF_SEXPREC-sizeof(SMapAllocator)); 
+    //R_allocator *allocator_addr = (R_allocator *)(base +HEADER_PAD_BYTES - SIZEOF_SEXPREC-sizeof(rscythica::MapAllocator)); 
 
     // Create allocator with memory
-    SMapAllocator *allocator = new(allocator_addr) SMapAllocator(base_);
+    rscythica::MapAllocator *allocator = new(base_) rscythica::MapAllocator();
     allocator->setFd(fd);
     allocator->setLength(numberOfBytes);
+
+    R_allocator rallocator = allocator->createRAllocator();
 
     // Now allocate with R
     vec_ = Rf_allocVector3(INTSXP, 
 			rows_,
-			(R_allocator *)allocator);
+			(R_allocator *)&rallocator);
     
 
     // $$$ Probably need to do something so that R knows this 

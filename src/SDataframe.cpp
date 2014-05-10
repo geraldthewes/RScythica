@@ -33,7 +33,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace Rcpp;
 using namespace boost::filesystem;
-
+using namespace rscythica;
 
 const string DF_SCHEMA = "/schema.cfg";
 const string DF_DATA_DIR = "/data";
@@ -143,22 +143,24 @@ SEXP SDataframe::intvec(string pkey, int pos) {
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 
   int rows = partition.nrow();
-  pos += 1; // R is 1 based
+  pos -= 1; // R is 1 based
 
+  if (pos >= 0) {
+    string coltype = columns_[pos].coltype();
 
-  string coltype = columns_[pos].coltype();
+    string path = path_ + DF_DATA_DIR + DF_SEP + pkey + DF_SEP
+      + columns_[pos].colname() ;
 
-  string path = path_ + DF_DATA_DIR + DF_SEP + pkey + DF_SEP
-    + columns_[pos].colname() ;
-
-  if (coltype == SDF_Integer32) {
-    SColBuffer<int32_t> colbuf(rows,path);
+    if (coltype == SDF_Integer32) {
+      SColBuffer<int32_t> colbuf(rows,path);
+      return colbuf.vector();      
+    }
 
     //int32_t *data = colbuf.data();
 
     //std::vector<int32_t> vraw(data,data+rows);
     //return Rcpp::wrap(vraw);
-    return colbuf.vector();
+
     
 
   }

@@ -21,46 +21,37 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <unistd.h>
-#include <sys/mman.h>
 
-#include "RMMapAllocator.hpp"
+#include <Rcpp.h>  
 
 
+#include <Rinternals.h>
+#include <R_ext/Rallocators.h>
 
-// 64 bit 
-#define SIZEOF_SEXPREC 56
+namespace rscythica {
 
-SMapAllocator::SMapAllocator() {
-}
+const int HEADER_PAD_BYTES = 128;
 
-SMapAllocator::SMapAllocator (void *base) {
-  allocator_.mem_alloc = &SMapAllocator::alloc;
-  allocator_.mem_free = &SMapAllocator::free;
-  allocator_.res = NULL;
-  allocator_.data = base;
+class MapAllocator {
+private:
+  int fd_;
+  size_t length_;
+
+public:
+  MapAllocator();
+
+
+  R_allocator createRAllocator();
   
-}
+  static void *alloc(R_allocator_t *allocator, size_t size);
+  static void free(R_allocator_t *allocator, void *loc);
 
+  inline size_t length() { return length_;}
+  inline void setLength(size_t size) {length_ = size; }
 
-void *SMapAllocator::alloc(R_allocator_t *allocator, size_t size) {
-  
+  inline int fd() { return fd_;}
+  inline void setFd(int fd) { fd_ = fd; }
 
-  // $$$ Does not match LONG_VECTOR_SUPPORT formula
-  // $$$ Why 16?
-char *data = (char *)allocator->data + HEADER_PAD_BYTES - SIZEOF_SEXPREC - sizeof(R_allocator)+ 16;
+};
 
-  return (void *) data;
-}
-
-void SMapAllocator::free(R_allocator_t *allocator, void *loc) {
-  SMapAllocator *salloc = new(allocator) SMapAllocator();
-  size_t len = salloc->length();
-  int fd = salloc->fd();
-
-  int status = munmap(allocator->data, len);
-    
-  status = close(fd);
-
-  // Check that R does not address the space after the free :-)
 }
