@@ -130,6 +130,12 @@ std::vector<string> SDataframe::partitions() {
 }
 
 
+/*!
+ * Return the number of rows in the partition pkey
+ * \param pkey Partition key
+ * \return The number of rows in the partition
+ */
+
 int SDataframe::partitionRows(string pkey) {
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 

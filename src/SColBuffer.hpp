@@ -32,8 +32,10 @@ using namespace std;
 
 namespace rscythica {
 
-  // Manage column buffer
-  
+  /*!
+   *  Manage columns buffer. This version supports POSIX mmap
+   */
+
   class SColBuffer {
   private:
     
@@ -43,11 +45,25 @@ namespace rscythica {
     SEXP  vec_;
 
   public:
-    // Load data frame identified by path
+
+    /*!
+     * Map column buffer and create an R SEXP internally.
+     * Silently fails, but SEXP will be set to R_NilValue
+     * \param rows Number of rows in partition
+     * \param path Path to column data file
+     * \param type R Type
+     * \param size Size of R type
+     */
+
     SColBuffer(int rows, 
 	       string path,
 	       SEXPTYPE type,
 	       size_t size);
+
+    /*!
+     * Return SEXP for column.
+     * \return R S Expression Pointer
+     */
 
     inline SEXP vectorSexp() { return vec_; }
 
