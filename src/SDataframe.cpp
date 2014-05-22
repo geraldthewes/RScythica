@@ -37,32 +37,21 @@ using namespace Rcpp;
 using namespace boost::filesystem;
 using namespace rscythica;
 
-const string DF_SCHEMA = "/schema.cfg";
-const string DF_DATA_DIR = "/data";
-const string DF_SEP = "/";
-const string DF_PDB = "pdb.key";
 
-const string SDF_Integer32 = "int32";
-const string SDF_Float = "float";
-const string SDF_Double = "double";
-const string SDF_Date = "date";
-const string SDF_Character = "character";
-const string SDF_Factor = "factor";
-const string SDF_Boolean = "boolean";
-const string SDF_Integer64 = "int64";
-
-
-SDataframe::SDataframe(string path) {
-  path_ = path;
-
+/*! 
+ * Create Dataframe from existing file based dataframe 
+ * \param path path to the dataframe storage on local filesystem
+ */
+SDataframe::SDataframe(string path) : path_(path) {
   // Open configuration YAML
-  string schemafile = path + DF_SCHEMA;
+  string schemafile = path + rscythica::DF_SCHEMA;
   //std::ifstream fin(schema.c_str());
   //YAML::Parser parser(fin);
   YAML::Node schema = YAML::LoadFile(schemafile);
   YAML::Node cols = schema["columns"];
   YAML::Node keyspace = schema["keyspace"];
   int ncols = schema["ncols"].as<int>();
+  rowsPerChunk_ = keyspace["rows_per_chunk"].as<int>();
 
   // Now grab the columns
   columns_.resize(ncols);
@@ -86,17 +75,34 @@ SDataframe::SDataframe(string path) {
 }
 
 
-int SDataframe::ncol() {
-  return columns_.size();
+
+int SDataframe::rowsPerChunk() {
+  return rowsPerChunk_;
 }
 
-int SDataframe::rowSplit() {
-  return 1;
-}
+/*!
+ * Return location of dataframe on filesystem
+ * \return path to dataframe
+ */
 
 string SDataframe::path() {
   return path_;
 }
+
+/*!
+ * Return number of columns in dataset
+ * \return Number of columns
+ */
+
+int SDataframe::ncol() {
+  return columns_.size();
+}
+
+
+/*!
+ * Return list of column names
+ * \return List of column names
+ */
 
 std::vector<string> SDataframe::names() {
   std::vector<string> names;
@@ -111,11 +117,15 @@ std::vector<string> SDataframe::names() {
   return names;
 }
 
+/*!
+ * Return list of partitions
+ * \return list of partition
+ */
 
 std::vector<string> SDataframe::partitions() {
   std::vector<string> partitions;
 
-  boost::filesystem::path p (path_ + DF_DATA_DIR);
+  boost::filesystem::path p (path_ + rscythica::DF_DATA_DIR);
 
   
   for(directory_iterator it = directory_iterator(p);
@@ -144,18 +154,34 @@ int SDataframe::partitionRows(string pkey) {
   return rows;
 }
 
-SEXP SDataframe::intvec(string pkey, int pos) {
+/*!
+ * Return an R object for the chunk withing a partition for a specific column
+ * Object is freed once it's garbage collected by R.
+ * \param pkey partition key
+ * \param chunk index of chunk (one based)                                                                                                                                                                                                                      
+ * \param column index of column (one based)
+ * \return A Sexp with the data 
+ */
+
+SEXP SDataframe::chunk(string pkey, int chunk, int column) {
   //Rcpp::IntegerVector v;
 
 
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 
   int rows = partition.nrow();
-  pos -= 1; // R is 1 based
+  column -= 1; // R is 1 based
+  chunk -= 1;
 
-  if (pos >= 0) {
-    string coltype = columns_[pos].coltype();
+  SEXP retval =  R_NilValue;
 
+  if (column >= 0 && chunk >= 0  ) {
+    
+    retval = partition.chunk(chunk,
+			     columns_[column].coltype(),
+			     columns_[column].colname());
+
+    /*
     string path = path_ + DF_DATA_DIR + DF_SEP + pkey + DF_SEP
       + columns_[pos].colname() ;
 
@@ -168,7 +194,7 @@ SEXP SDataframe::intvec(string pkey, int pos) {
       rscythica::SColBuffer colbuf(rows,path, REALSXP, sizeof(double));
       return colbuf.vectorSexp();      
     }
-
+    */
 
   }
   
@@ -178,7 +204,7 @@ SEXP SDataframe::intvec(string pkey, int pos) {
   //return Rcpp::IntegerVector();
 
 
-  return R_NilValue;
+  return retval;
 }
 
 
@@ -190,6 +216,6 @@ RCPP_MODULE(rscythica) {
     .method("names",&SDataframe::names)
     .method("partitions",&SDataframe::partitions)
     .method("partition_rows",&SDataframe::partitionRows)
-    .method("intvec",&SDataframe::intvec)
+    .method("chunk",&SDataframe::chunk)
     ;
 }

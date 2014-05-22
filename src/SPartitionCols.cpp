@@ -28,15 +28,31 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SDataframe.hpp"
 #include "SPartitionCols.hpp"
+#include "SColBuffer.hpp"
 
 #include "leveldb/db.h"
 #include <msgpack.hpp>
 
+using namespace rscythica;
 
 const string DB_NROW = "nrow";
 
 const string DF_MP = "db.mp";
 
+/*
+namespace rscythica {
+  extern const std::string SDF_Integer32;
+  extern const std::string SDF_Float;
+  extern const std::string SDF_Double;
+  extern const std::string SDF_Date;
+  extern const std::string SDF_Character; 
+  extern const std::string SDF_Factor;
+  extern const std::string SDF_Boolean;
+  extern const std::string SDF_Integer64; 
+
+  extern const std::string DF_SEP;
+}
+*/
 
 /*
 
@@ -54,6 +70,10 @@ SdsPartitionCols::SdsPartitionCols(SDataframe &schema, string pkey) :
 SdsPartitionCols::~SdsPartitionCols() {
   //delete db_;
 }
+
+/*!
+ * Return total number of rows in the partition
+ */
 
 int64_t SdsPartitionCols::nrow() {
   return nrow_;
@@ -142,6 +162,46 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
   nrow = map[DB_NROW];
 
   return nrow;
+
+}
+
+/*! Return R object for the given chunk
+ * \param chunk chunk 1 based index
+ * \param columnIndex 1 based column index
+ * \return R Object at the specific indes
+ */
+SEXP SdsPartitionCols::chunk(int chunk, 
+		       string columnType,
+		       string columnName) {
+
+  // Compute chunk
+  // format path
+  // create column buffer
+  int totalChunks = nrow_ / schema_.rowsPerChunk();
+
+  int nrows = schema_.rowsPerChunk();
+  if (chunk == totalChunks) {
+    nrows = nrow_ % schema_.rowsPerChunk();
+  }
+
+  char buff[16];
+  sprintf(buff,"-%08x.dat",chunk);
+    
+
+  string path = schema_.path() + DF_DATA_DIR + DF_SEP + pkey_ + DF_SEP
+    + columnName + string(buff);
+
+  if (columnType == rscythica::SDF_Integer32) {
+      rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
+      return colbuf.vectorSexp();      
+    }
+
+  if (columnType == rscythica::SDF_Double) {
+      rscythica::SColBuffer colbuf(nrows,path, REALSXP, sizeof(double));
+      return colbuf.vectorSexp();      
+    }
+
+
 
 }
 

@@ -29,22 +29,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace std;
 
-class SdsPartitionCols {
-private:
-  SDataframe    &schema_;
-  string        pkey_;
-  int64_t       nrow_;
+namespace rscythica {
 
-  int64_t       getRowFromLevelDB();
-  int64_t       getRowFromMsgPack();
+  class SdsPartitionCols {
+  private:
+    SDataframe    &schema_;
+    string        pkey_;
+    int64_t       nrow_;
 
-public:
-  SdsPartitionCols(SDataframe &schema, string pkey);
-  ~SdsPartitionCols();
+    int64_t       getRowFromLevelDB();
+    int64_t       getRowFromMsgPack();
 
-  int64_t      nrow();
+  public:
+    SdsPartitionCols(SDataframe &schema, string pkey);
+    ~SdsPartitionCols();
 
+    int64_t      nrow();
 
-};
+    SEXP chunk(int chunk, string columnType, string columnName);
+
+  };
+}
 
 #endif  // SDS_PARTITIONCOLS_H
