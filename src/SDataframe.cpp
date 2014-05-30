@@ -51,7 +51,7 @@ SDataframe::SDataframe(string path) : path_(path) {
   YAML::Node cols = schema["columns"];
   YAML::Node keyspace = schema["keyspace"];
   int ncols = schema["ncols"].as<int>();
-  rowsPerChunk_ = keyspace["rows_per_chunk"].as<int>();
+  rowsPerSplit_ = keyspace["rows_per_split"].as<int>();
 
   // Now grab the columns
   columns_.resize(ncols);
@@ -76,8 +76,8 @@ SDataframe::SDataframe(string path) : path_(path) {
 
 
 
-int SDataframe::rowsPerChunk() {
-  return rowsPerChunk_;
+int SDataframe::rowsPerSplit() {
+  return rowsPerSplit_;
 }
 
 /*!
@@ -155,15 +155,15 @@ int SDataframe::partitionRows(string pkey) {
 }
 
 /*!
- * Return an R object for the chunk withing a partition for a specific column
+ * Return an R object for the split within a partition for a specific column
  * Object is freed once it's garbage collected by R.
  * \param pkey partition key
- * \param chunk index of chunk (one based)                                                                                                                                                                                                                      
+ * \param split index of split (one based)                                                                                                                                                                                                                      
  * \param column index of column (one based)
  * \return A Sexp with the data 
  */
 
-SEXP SDataframe::chunk(string pkey, int chunk, int column) {
+SEXP SDataframe::split(string pkey, int split, int column) {
   //Rcpp::IntegerVector v;
 
 
@@ -171,13 +171,13 @@ SEXP SDataframe::chunk(string pkey, int chunk, int column) {
 
   int rows = partition.nrow();
   column -= 1; // R is 1 based
-  chunk -= 1;
+  split -= 1;
 
   SEXP retval =  R_NilValue;
 
-  if (column >= 0 && chunk >= 0  ) {
+  if (column >= 0 && split >= 0  ) {
     
-    retval = partition.chunk(chunk,
+    retval = partition.split(split,
 			     columns_[column].coltype(),
 			     columns_[column].colname());
 
@@ -216,6 +216,6 @@ RCPP_MODULE(rscythica) {
     .method("names",&SDataframe::names)
     .method("partitions",&SDataframe::partitions)
     .method("partition_rows",&SDataframe::partitionRows)
-    .method("chunk",&SDataframe::chunk)
+    .method("split",&SDataframe::split)
     ;
 }

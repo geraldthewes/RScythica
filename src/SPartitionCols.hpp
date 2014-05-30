@@ -46,7 +46,7 @@ namespace rscythica {
 
     int64_t      nrow();
 
-    SEXP chunk(int chunk, string columnType, string columnName);
+    SEXP split(int split, string columnType, string columnName);
 
   };
 }

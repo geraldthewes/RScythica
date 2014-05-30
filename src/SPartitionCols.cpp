@@ -165,27 +165,27 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
 
 }
 
-/*! Return R object for the given chunk
- * \param chunk chunk 1 based index
+/*! Return R object for the given split
+ * \param split split 1 based index
  * \param columnIndex 1 based column index
  * \return R Object at the specific indes
  */
-SEXP SdsPartitionCols::chunk(int chunk, 
+SEXP SdsPartitionCols::split(int split, 
 		       string columnType,
 		       string columnName) {
 
-  // Compute chunk
+  // Compute split
   // format path
   // create column buffer
-  int totalChunks = nrow_ / schema_.rowsPerChunk();
+  int totalSplits = nrow_ / schema_.rowsPerSplit();
 
-  int nrows = schema_.rowsPerChunk();
-  if (chunk == totalChunks) {
-    nrows = nrow_ % schema_.rowsPerChunk();
+  int nrows = schema_.rowsPerSplit();
+  if (split == totalSplits) {
+    nrows = nrow_ % schema_.rowsPerSplit();
   }
 
   char buff[16];
-  sprintf(buff,"-%08x.dat",chunk);
+  sprintf(buff,"-%08x.dat",split);
     
 
   string path = schema_.path() + DF_DATA_DIR + DF_SEP + pkey_ + DF_SEP

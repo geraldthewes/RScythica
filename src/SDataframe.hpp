@@ -38,7 +38,7 @@ class SDataframe {
 private:
   string path_;
   std::vector<SdsColumndef> columns_;
-  int rowsPerChunk_;
+  int rowsPerSplit_;
 
 public:
   // Load data frame identified by path
@@ -46,7 +46,7 @@ public:
 
   int ncol();
   std::vector<string> names();
-  int rowsPerChunk();
+  int rowsPerSplit();
   string  path();
 
   std::vector<string> partitions();  
@@ -54,7 +54,7 @@ public:
   int partitionRows(string pkey);
 
 
-  SEXP chunk(string pkey, int chunk, int column);
+  SEXP split(string pkey, int split, int column);
 
   // Rownames partion+offset
 

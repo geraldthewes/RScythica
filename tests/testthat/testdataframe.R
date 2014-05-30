@@ -14,11 +14,11 @@ test_that("Dataframe Basics", {
 
     expect_that(x$partition_rows('2008-01-03'), equals(999))
 
-    v <- x$chunk('2008-01-03',1,1)
+    v <- x$split('2008-01-03',1,1)
 
     expect_that(length(v), equals(500))
     
-    v <- x$chunk('2008-01-03',2,1)
+    v <- x$split('2008-01-03',2,1)
 
     expect_that(length(v), equals(499))
 })
