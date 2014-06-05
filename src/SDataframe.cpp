@@ -154,6 +154,22 @@ int SDataframe::partitionRows(string pkey) {
   return rows;
 }
 
+
+/*!
+ * Return the number of splits in the partition pkey
+ * \param pkey Partition key
+ * \return The number of splits in the partition
+ */
+
+int SDataframe::partitionSplits(string pkey) {
+  SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
+
+  int splits = partition.nrow() / rowsPerSplit_ +1;
+
+  return splits;
+}
+
+
 /*!
  * Return an R object for the split within a partition for a specific column
  * Object is freed once it's garbage collected by R.
@@ -212,10 +228,14 @@ RCPP_MODULE(rscythica) {
   class_<SDataframe>("SDataframe")
 
     .constructor<string>()
-    .method("ncol",&SDataframe::ncol)
-    .method("names",&SDataframe::names)
-    .method("partitions",&SDataframe::partitions)
-    .method("partition_rows",&SDataframe::partitionRows)
-    .method("split",&SDataframe::split)
+
+    .property("rows_per_split",&SDataframe::rowsPerSplit,"Max number of rows in a split")
+
+    .method("ncol",&SDataframe::ncol,"Number of colums")
+    .method("names",&SDataframe::names,"Column Names")
+    .method("partitions",&SDataframe::partitions,"Array of partitions")
+    .method("partition_rows",&SDataframe::partitionRows,"Number of rows in a partition")
+    .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
+    .method("split",&SDataframe::split,"Access to a split")
     ;
 }

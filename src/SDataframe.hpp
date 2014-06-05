@@ -52,6 +52,7 @@ public:
   std::vector<string> partitions();  
 
   int partitionRows(string pkey);
+  int partitionSplits(string pkey);
 
 
   SEXP split(string pkey, int split, int column);

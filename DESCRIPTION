@@ -9,6 +9,6 @@ Description: More about what it does (maybe more than one line)
 License: MIT + file LICENSE
 Imports: methods, Rcpp (>= 0.11.1)
 LinkingTo: Rcpp
-Depends: R (>= 3.1.0), Rcpp
+Depends: R (>= 3.1.0), Rcpp, iterators, foreach
 RcppModules:rscythica
 Suggests: testthat
