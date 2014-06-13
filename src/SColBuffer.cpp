@@ -52,9 +52,9 @@ SColBuffer::SColBuffer(int rows,
     R_allocator rallocator = allocator->createRAllocator();
 
     // Now allocate with R
-    vec_ = Rf_allocVector3(INTSXP, 
-			rows_,
-			(R_allocator *)&rallocator);
+      vec_ = Rf_allocVector3(type, 
+			     rows_,
+			     (R_allocator *)&rallocator);
     
 }
 
