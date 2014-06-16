@@ -27,10 +27,12 @@ using namespace boost::filesystem;
 using namespace rscythica;
 
 
+
 /*! 
  * Create Dataframe from existing file based dataframe 
  * \param path path to the dataframe storage on local filesystem
  */
+
 SDataframe::SDataframe(string path) : path_(path) {
   // Open configuration YAML
   string schemafile = path + rscythica::DF_SCHEMA;
@@ -62,7 +64,6 @@ SDataframe::SDataframe(string path) : path_(path) {
   }
   
 }
-
 
 
 int SDataframe::rowsPerSplit() {

@@ -3,27 +3,28 @@
 \alias{RScythica}
 \docType{package}
 \title{
-What the package does (short line)
+Implements large scale dataframes
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+  RScythica Dataframes, called S Dataframes, are large scale,read-only,
+  eventually distributed, data frames which are both partioned and
+  broken into large splits. S Dataframes are created using external utilities.
 }
 \details{
 \tabular{ll}{
 Package: \tab RScythica\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2014-03-26\cr
-License: \tab What Licence is it under ?\cr
+Date: \tab 2014-06-15\cr
+License: \tab LGPL 2.1\cr
 }
 ~~ An overview of how to use the package, including the most important ~~
 ~~ functions ~~
 }
 \author{
-Who wrote it
+Gerald Hewes
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Maintainer: <gerald@geraldthewes.org>
 }
 \references{
 ~~ Literature or other references for background information ~~
@@ -36,5 +37,22 @@ Maintainer: Who to complain to <yourfault@somewhere.net>
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
-%% ~~ simple examples of the most important functions ~~
+library(RScythica)
+sdf <- Module("rscythica", PACKAGE="RScythica")
+sdf2 <- sdf$SDataframe
+
+x <- new(sdf2,path="data/airline")
+x$ncol()
+x$names()
+x$partitions()
+
+x$partition_rows('2008-01-03')
+
+v <- x$split('2008-01-03',1,1)
+
+it <- sdf_iterator(df)
+c <- nextElem(it)
+
+s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+
 }

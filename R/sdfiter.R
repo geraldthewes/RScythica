@@ -8,6 +8,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 
+
+#' Create an iterator over S Dataframes
+#'
+#' Creates an iteratior that will iterate over all partition and splits
+#' of an S Dataframe
+#' 
+#' @param sdf S Dataframe
+#' @examples
+#' it <- sdf_iterator(df)
+#' c <- nextElem(it)
+#' s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+#' @export
 sdf_iterator <- function(sdf) {
     pidx <- 1
     split <- 1
