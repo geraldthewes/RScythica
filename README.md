@@ -12,3 +12,12 @@ Major functionality include:
 
 * Partitions are broken into large splits, typically 64MB in size
 
+Dependencies
+
+Linux
+
+Mac OS X
+
+  brew install boost
+  brew install yaml-cpp
+  brew install msgpack

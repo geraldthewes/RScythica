@@ -55,7 +55,7 @@ MapAllocator *MapAllocator::mapChunk(std::string path,
     rscythica::MapAllocator *allocator = new(base) rscythica::MapAllocator();
     allocator->setFd(fd);
     allocator->setLength(numberOfBytes);
-
+    return allocator;
 }
 
 

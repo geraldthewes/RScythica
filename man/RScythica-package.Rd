@@ -41,14 +41,14 @@ library(RScythica)
 sdf <- Module("rscythica", PACKAGE="RScythica")
 sdf2 <- sdf$SDataframe
 
-x <- new(sdf2,path="data/airline")
+x <- new(sdf2,path="rscythica/tests/extdata/airline.db")
 x$ncol()
 x$names()
 x$partitions()
 
 x$partition_rows('2008-01-03')
 
-v <- x$split('2008-01-03',1,1)
+v <- x$split('2008-01-03',1,19)
 
 it <- sdf_iterator(df)
 c <- nextElem(it)

@@ -4,7 +4,7 @@ test_that("Dataframe Basics", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="/home3/gth/go/src/github.com/geraldthewes/scythica/sdsmeta/airline")
+    x <- new(sdf2,path="../extdata/airline.db")
 
     expect_that(x$ncol(), equals(29))
 
@@ -33,7 +33,7 @@ test_that("Dataset Iris", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="/home3/gth/go/src/github.com/geraldthewes/scythica/sdsmeta/iris")
+    x <- new(sdf2,path="../extdata/iris.db")
 
     expect_that(x$ncol(), equals(5))
 
@@ -59,7 +59,7 @@ test_that("Dataframe Iterator", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    df <- new(sdf2,path="/home3/gth/go/src/github.com/geraldthewes/scythica/sdsmeta/airline")
+    df <- new(sdf2,path="../extdata/airline.db")
 
     it <- sdf_iterator(df)
     c <- nextElem(it)

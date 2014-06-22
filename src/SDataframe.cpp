@@ -46,7 +46,7 @@ SDataframe::SDataframe(string path) : path_(path) {
 
   // Now grab the columns
   columns_.resize(ncols);
-  int i;
+  int i = 0;
   for(YAML::const_iterator it=cols.begin();
       it != cols.end();
       ++it) {

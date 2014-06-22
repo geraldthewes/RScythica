@@ -19,7 +19,6 @@ Lesser General Public License for more details.
 #include "SPartitionCols.hpp"
 #include "SColBuffer.hpp"
 
-#include "leveldb/db.h"
 #include <msgpack.hpp>
 
 using namespace rscythica;
@@ -68,7 +67,7 @@ int64_t SdsPartitionCols::nrow() {
   return nrow_;
 }
 
-
+/*
 int64_t SdsPartitionCols::getRowFromLevelDB() {
   int64_t nrow;
   leveldb::Options options;
@@ -102,6 +101,7 @@ int64_t SdsPartitionCols::getRowFromLevelDB() {
 
   return nrow;
 }
+*/
 
 int64_t SdsPartitionCols::getRowFromMsgPack() {
   // Not great - but for now the file is small
