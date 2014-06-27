@@ -21,3 +21,8 @@ Mac OS X
   brew install boost
   brew install yaml-cpp
   brew install msgpack
+
+Test Data
+
+sdscreate airline.yaml airline.db airline.csv
+sdscreate -noheader=true iris.yaml iris.db iris.data

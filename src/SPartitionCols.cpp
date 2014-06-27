@@ -22,10 +22,12 @@ Lesser General Public License for more details.
 #include <msgpack.hpp>
 
 using namespace rscythica;
+using namespace Rcpp;
 
 const string DB_NROW = "nrow";
 
 const string DF_MP = "db.mp";
+const string DF_FACTORS_DIR = "/factors";
 
 /*
 namespace rscythica {
@@ -154,6 +156,59 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
 
 }
 
+/*! Get Array of character for a factor
+ * \param columnName
+ * \return Array of character vectors
+ */
+Rcpp::CharacterVector SdsPartitionCols::getFactorLevels(string columnName) {
+  // Not great - but for now the file is small
+  string dbf = schema_.path() + DF_FACTORS_DIR + DF_SEP + columnName;
+
+  // $$$ Fix to avoid resource leakage in case of pbs
+
+  struct stat filestatus;
+  int retval = stat(dbf.c_str(),&filestatus);
+ 
+  if (retval== -1) {
+    string msg = "Error looking up factor:" + dbf;
+    throw std::runtime_error(msg);
+  }
+ 
+  
+  //msgpack::sbuffer sbuf(filestatus.st_size);
+
+  msgpack::unpacker pac;
+  pac.reserve_buffer(filestatus.st_size);
+
+  ifstream in_file;
+  in_file.open(dbf.c_str(),ios::in);
+  if (!in_file) {
+    string msg = "Unable to open  File:" + dbf;
+    throw std::runtime_error(msg);
+  }
+
+  //in_file.read(sbuf.data(), filestatus.st_size);
+  in_file.read(pac.buffer(), filestatus.st_size);
+
+  in_file.close();
+  
+  pac.buffer_consumed(filestatus.st_size);
+
+  msgpack::unpacked msg;
+  //msgpack::unpack(&msg,sbuf.data(),sbuf.size());
+
+  pac.next(&msg);
+  msgpack::object obj = msg.get();
+
+  std::vector<std::string> array;
+  obj.convert(&array);
+
+  Rcpp::CharacterVector v(array.begin(),array.end());
+
+  return v;
+
+}
+
 /*! Return R object for the given split
  * \param split split 1 based index
  * \param columnIndex 1 based column index
@@ -190,6 +245,15 @@ SEXP SdsPartitionCols::split(int split,
       return colbuf.vectorSexp();      
     }
 
+  if (columnType == rscythica::SDF_Factor) {
+      rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
+      Rcpp::CharacterVector levels = getFactorLevels(columnName);
+      // Change class
+      SEXP factors = colbuf.vectorSexp();
+      Rcpp::RObject rfactor = factors;
+      rfactor.attr("levels") = levels;
+      return rfactor;
+    }
 
 
 }
