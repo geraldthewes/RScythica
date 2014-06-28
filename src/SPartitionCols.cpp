@@ -252,9 +252,10 @@ SEXP SdsPartitionCols::split(int split,
       SEXP factors = colbuf.vectorSexp();
       Rcpp::RObject rfactor = factors;
       rfactor.attr("levels") = levels;
+      rfactor.attr("class") = "factor";
       return rfactor;
     }
 
-
+  return R_NilValue;
 }
 
