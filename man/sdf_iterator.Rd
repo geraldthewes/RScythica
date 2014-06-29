@@ -13,8 +13,8 @@ Creates an iteratior that will iterate over all partition and splits
 of an S Dataframe
 }
 \examples{
-it <- sdf_iterator(df)
-c <- nextElem(it)
-s <- foreach(i=sdf_iterator(df),.combine=sum) \%do\% df$split(i$pkey,i$split,19)
+#it <- sdf_iterator(df)
+#c <- nextElem(it)
+#s <- foreach(i=sdf_iterator(df),.combine=sum) \%do\% df$split(i$pkey,i$split,19)
 }
 

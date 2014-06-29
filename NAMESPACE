@@ -2,4 +2,7 @@
 
 export(sdf_iterator)
 import(Rcpp)
+import(foreach)
+import(iterators)
+import(methods)
 useDynLib(RScythica)

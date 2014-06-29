@@ -16,9 +16,9 @@
 #' 
 #' @param sdf S Dataframe
 #' @examples
-#' it <- sdf_iterator(df)
-#' c <- nextElem(it)
-#' s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+#' #it <- sdf_iterator(df)
+#' #c <- nextElem(it)
+#' #s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
 #' @export
 sdf_iterator <- function(sdf) {
     pidx <- 1

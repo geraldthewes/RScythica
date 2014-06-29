@@ -10,6 +10,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
 
+#include <sys/stat.h>
+
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -36,6 +38,18 @@ using namespace rscythica;
 SDataframe::SDataframe(string path) : path_(path) {
   // Open configuration YAML
   string schemafile = path + rscythica::DF_SCHEMA;
+  struct stat filestatus;
+  int retval = stat(schemafile.c_str(),&filestatus);
+
+  if (retval== -1) {
+    boost::filesystem::path cwd = boost::filesystem::current_path();
+    string msg = "Schema file not found cwd:" + cwd.string() + " path:" + schemafile;
+    throw std::runtime_error(msg);
+  }
+
+
+
+
   //std::ifstream fin(schema.c_str());
   //YAML::Parser parser(fin);
   YAML::Node schema = YAML::LoadFile(schemafile);

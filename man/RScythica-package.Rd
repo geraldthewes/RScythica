@@ -18,8 +18,7 @@ Version: \tab 1.0\cr
 Date: \tab 2014-06-15\cr
 License: \tab LGPL 2.1\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+TK Overview
 }
 \author{
 Gerald Hewes
@@ -27,32 +26,30 @@ Gerald Hewes
 Maintainer: <gerald@geraldthewes.org>
 }
 \references{
-~~ Literature or other references for background information ~~
+Distributed R
+ff
+bigmemory
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
-\keyword{ package }
+\keyword{ package bigdata }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
 library(RScythica)
 sdf <- Module("rscythica", PACKAGE="RScythica")
 sdf2 <- sdf$SDataframe
 
-x <- new(sdf2,path="rscythica/tests/extdata/airline.db")
-x$ncol()
-x$names()
-x$partitions()
+#x <- new(sdf2,path="rscythica/tests/extdata/airline.db")
+#x$ncol()
+#x$names()
+#x$partitions()
 
-x$partition_rows('2008-01-03')
+#x$partition_rows('2008-01-03')
 
-v <- x$split('2008-01-03',1,19)
+#v <- x$split('2008-01-03',1,19)
 
-it <- sdf_iterator(df)
-c <- nextElem(it)
+#it <- sdf_iterator(df)
+#c <- nextElem(it)
 
-s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+#s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
 
 }
