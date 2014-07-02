@@ -1,28 +1,80 @@
 # RScythica
 
-RScythica Dataframes, called S Dataframes, are large scale,read-only,
+RScythica Dataframes, also called S Dataframes, are large scale, read-only,
 eventually distributed, data frames which are both partioned and
 broken into large splits. S Dataframes are created using external utilities.
 
-Major functionality include:
+LICENSE: LGPL 2.1
 
-* S Dataframes consists of multiple binary files that hold vector daya
+Features
+========
+
+* S Dataframes consists of multiple binary files that hold vector data, that can be mapped directly into an R process
 
 * S Dataframes are partioned. 
 
-* Partitions are broken into large splits, typically 64MB in size
+* Partitions are further broken into large splits, typically 64MB in size for efficiency
+
+For more defails, check the R Package documentation.
 
 Dependencies
+============
+
+Common
+------
+
+RScythica depends on the [scythica](http://github.com/geraldthewes/scythica) utilities to create the S datasets, and the utilities  need to be available in the executable search path.
 
 Linux
+-----
 
 Mac OS X
+--------
 
-  brew install boost
-  brew install yaml-cpp
-  brew install msgpack
+The following packages are required
+
+
+* XCode
+
+* Brew Packages:
+ 
+`brew install boost`
+
+`brew install yaml-cpp`
+
+`brew install msgpack`
 
 Test Data
+=========
 
-sdscreate airline.yaml airline.db airline.csv
-sdscreate -noheader=true iris.yaml iris.db iris.data
+The package include source data that needs to be converted to binary form using sdscreate
+
+`sdscreate airline.yaml airline.db airline.csv`
+
+`sdscreate -noheader=true iris.yaml iris.db iris.data`
+
+
+Build
+=====
+
+The Doxygen file for the C++ code can be created with
+
+`doxygen`
+
+`cd latex`
+
+`make`
+
+This will create an HTML version in the HTML/index.html subdirectory, and a PDF version in the latex subdirectory.
+
+Limitations
+===========
+
+Current limitations include:
+
+* Limited testing or error handling
+* Only supports POSIX systems such as MacOS X and Linux
+* Only supports the following data types
+    * Integers (32-bit)
+    * Doubles (64-bit)
+    * Factors
