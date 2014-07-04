@@ -256,6 +256,15 @@ SEXP SdsPartitionCols::split(int split,
       return rfactor;
     }
 
+
+  if (columnType == rscythica::SDF_Date) {
+      rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
+      SEXP vecsexp = colbuf.vectorSexp();
+      Rcpp::RObject vec = vecsexp;
+      vec.attr("class") = "Date";
+      return vec;      
+    }
+
   return R_NilValue;
 }
 

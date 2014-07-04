@@ -47,12 +47,13 @@ The following packages are required
 Test Data
 =========
 
-The package include source data that needs to be converted to binary form using sdscreate
+The package include source data that needs to be converted to binary form using sdscreate in the `tests/extdata` directory
 
-`sdscreate airline.yaml airline.db airline.csv`
+`sdscreate airline.yaml airline.sds airline.csv`
 
-`sdscreate -noheader=true iris.yaml iris.db iris.data`
+`sdscreate -noheader=true iris.yaml iris.sds iris.data`
 
+`sdscreate boston.yaml boston.sds boston-1970-2014.csv`
 
 Build
 =====
@@ -78,3 +79,4 @@ Current limitations include:
     * Integers (32-bit)
     * Doubles (64-bit)
     * Factors
+    * Date

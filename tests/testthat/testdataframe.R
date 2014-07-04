@@ -4,7 +4,7 @@ test_that("Dataframe Basics", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="../extdata/airline.db")
+    x <- new(sdf2,path="../extdata/airline.sds")
 
     expect_that(x$ncol(), equals(29))
 
@@ -41,7 +41,7 @@ test_that("Dataset Iris", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="../extdata/iris.db")
+    x <- new(sdf2,path="../extdata/iris.sds")
 
     expect_that(x$ncol(), equals(5))
 
@@ -62,12 +62,34 @@ test_that("Dataset Iris", {
     
 })
 
+test_that("Dataset Boston", {
+  
+  scy <- Module("rscythica", PACKAGE="RScythica")
+  sdf2 <- scy$SDataframe
+  x <- new(sdf2,path="../extdata/boston.sds")
+  
+  expect_that(x$ncol(), equals(4))
+  
+  expect_that(x$names()[2], equals("dt"))
+  
+  expect_that(length(x$partitions()), equals(1))
+  expect_that(x$partitions()[1], equals("boston"))
+    
+  # test date
+  v <- x$split('boston',1,2)
+  
+  expect_that(length(v), equals(44))
+  expect_that(class(v), equals("Date"))
+  expect_that(v[12], equals(as.Date("1982-01-01")))
+  
+})
+
 
 test_that("Dataframe Iterator", {
     
     scy <- Module("rscythica", PACKAGE="RScythica")
     sdf2 <- scy$SDataframe
-    df <- new(sdf2,path="../extdata/airline.db")
+    df <- new(sdf2,path="../extdata/airline.sds")
 
     it <- sdf_iterator(df)
     c <- nextElem(it)
