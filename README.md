@@ -55,6 +55,8 @@ The package include source data that needs to be converted to binary form using 
 
 `sdscreate boston.yaml boston.sds boston-1970-2014.csv`
 
+`sdscreate PRECIP_15_sample_csv.yaml noaa.sds PRECIP_15_sample_csv.csv`
+
 Build
 =====
 
@@ -75,8 +77,9 @@ Current limitations include:
 
 * Limited testing or error handling
 * Only supports POSIX systems such as MacOS X and Linux
-* Only supports the following data types
-    * Integers (32-bit)
-    * Doubles (64-bit)
-    * Factors
+* Currently supports the following data types:
+    * integer (32-bit)
+    * numeric (64-bit Double)
+    * factor
     * Date
+    * DateTime (POSIXct)

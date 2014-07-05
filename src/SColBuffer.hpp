@@ -29,7 +29,7 @@ namespace rscythica {
   private:
     
     int rows_;
-    size_t size_;
+    //size_t size_;
     string path_;
     SEXP  vec_;
 

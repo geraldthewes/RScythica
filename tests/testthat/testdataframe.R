@@ -84,6 +84,30 @@ test_that("Dataset Boston", {
   
 })
 
+test_that("Dataset Noaa", {
+  
+  scy <- Module("rscythica", PACKAGE="RScythica")
+  sdf2 <- scy$SDataframe
+  noaa <- new(sdf2,path="../extdata/noaa.sds")
+  
+  expect_that(noaa$ncol(), equals(10))
+  
+  expect_that(noaa$names()[6], equals("DATE"))
+  
+  expect_that(length(noaa$partitions()), equals(1))
+  expect_that(noaa$partitions()[1], equals("COOP_311564"))
+  
+  # test date
+  v <- noaa$split('COOP_311564',1,6)
+  attr(v,"tzone") <- "UTC"
+  
+  expect_that(length(v), equals(158))
+  expect_that(class(v)[2], equals("POSIXct"))
+  
+  expect_that(as.character(v[12]), 
+              equals(as.character(as.POSIXct("1984-01-10 09:00:00",tz="UTC"))))
+  
+})
 
 test_that("Dataframe Iterator", {
     

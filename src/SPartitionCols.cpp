@@ -29,20 +29,7 @@ const string DB_NROW = "nrow";
 const string DF_MP = "db.mp";
 const string DF_FACTORS_DIR = "/factors";
 
-/*
-namespace rscythica {
-  extern const std::string SDF_Integer32;
-  extern const std::string SDF_Float;
-  extern const std::string SDF_Double;
-  extern const std::string SDF_Date;
-  extern const std::string SDF_Character; 
-  extern const std::string SDF_Factor;
-  extern const std::string SDF_Boolean;
-  extern const std::string SDF_Integer64; 
 
-  extern const std::string DF_SEP;
-}
-*/
 
 /*
 
@@ -264,6 +251,19 @@ SEXP SdsPartitionCols::split(int split,
       vec.attr("class") = "Date";
       return vec;      
     }
+    
+    if (columnType == rscythica::SDF_DateTime) {
+      rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
+      SEXP vecsexp = colbuf.vectorSexp();
+      Rcpp::RObject vec = vecsexp;
+      Rcpp::CharacterVector classes = 
+          CharacterVector::create("POSIXt","POSIXct");
+      //classes[0] = "POSIXt";
+      //classes[1] = "POSIXct";
+      vec.attr("class") = classes;
+      return vec;      
+    }
+    
 
   return R_NilValue;
 }

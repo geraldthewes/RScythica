@@ -29,7 +29,7 @@ using namespace rscythica;
 SColBuffer::SColBuffer(int rows, 
 		       string path,
 		       SEXPTYPE type,
-		       size_t size) : rows_(rows), size_(size), path_(path), vec_(R_NilValue) {
+		       size_t size) : rows_(rows), /*size_(size), */ path_(path), vec_(R_NilValue) {
     size_t numberOfBytes = rows_ * size + HEADER_PAD_BYTES;
 
 

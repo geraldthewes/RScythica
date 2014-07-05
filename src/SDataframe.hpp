@@ -9,12 +9,7 @@
 
 using namespace std;
 
-/*
-extern const string DF_SCHEMA;
-extern const string DF_DATA_DIR;
-extern const string DF_SEP;
-extern const string DF_PDB;
-*/
+
 
 namespace rscythica {
 const string DF_SCHEMA = "/schema.cfg";
@@ -27,6 +22,7 @@ const string SDF_Integer32 = "int32";
 const string SDF_Float = "float";
 const string SDF_Double = "double";
 const string SDF_Date = "date";
+const string SDF_DateTime = "datetime";
 const string SDF_Character = "character";
 const string SDF_Factor = "factor";
 const string SDF_Boolean = "boolean";
