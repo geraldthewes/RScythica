@@ -32,7 +32,12 @@ test_that("Dataframe Basics", {
     v <- x$split('2008-01-03',1,11)
     expect_that(class(v), equals('factor'))    
     expect_that(as.character(v[5]), equals('N464WN'))
-    expect_that(length(levels(v)), equals(444))    
+    expect_that(length(levels(v)), equals(444))   
+    
+    # Test NA
+    v <- x$split('2008-01-03',1,29)
+    expect_that(v[5], equals(32))
+    expect_true(is.na(v[6]))
 
 })
 
@@ -60,6 +65,10 @@ test_that("Dataset Iris", {
     expect_that(sum(v), equals(250.3))
     expect_that(v[25], equals(4.8))
     
+    v <- x$split('Iris-virginica',1,4)
+    expect_true(is.na(v[47]))
+    expect_that(v[25], equals(2.1))
+    
 })
 
 test_that("Dataset Boston", {
@@ -81,6 +90,8 @@ test_that("Dataset Boston", {
   expect_that(length(v), equals(44))
   expect_that(class(v), equals("Date"))
   expect_that(v[12], equals(as.Date("1982-01-01")))
+  expect_true(is.na(v[20]))
+  expect_false(is.na(v[19]))
   
 })
 
@@ -106,6 +117,8 @@ test_that("Dataset Noaa", {
   
   expect_that(as.character(v[12]), 
               equals(as.character(as.POSIXct("1984-01-10 09:00:00",tz="UTC"))))
+  expect_true(is.na(v[35]))
+  expect_false(is.na(v[34]))            
   
 })
 
