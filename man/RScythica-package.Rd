@@ -38,7 +38,7 @@ library(RScythica)
 sdf <- Module("rscythica", PACKAGE="RScythica")
 sdf2 <- sdf$SDataframe
 
-#x <- new(sdf2,path="rscythica/tests/extdata/airline.db")
+#x <- new(sdf2,path="rscythica/tests/extdata/airline.sds")
 #x$ncol()
 #x$names()
 #x$partitions()

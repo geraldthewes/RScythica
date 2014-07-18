@@ -26,7 +26,14 @@ test_that("Dataframe Basics", {
     
     v <- x$split('2008-01-03',2,19)
     expect_that(length(v), equals(499))
-    expect_that(class(v), equals('integer'))    
+    expect_that(class(v), equals('integer'))
+    
+    # Test logical
+    v <- x$split('2008-01-03',1,22)
+    expect_that(length(v), equals(500))
+    expect_that(class(v), equals('logical')) 
+    expect_that(v[179], is_true())
+    expect_that(v[177], is_false())
 
     # Test factors
     v <- x$split('2008-01-03',1,11)

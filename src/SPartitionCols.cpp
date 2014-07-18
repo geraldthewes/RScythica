@@ -231,6 +231,14 @@ SEXP SdsPartitionCols::split(int split,
       rscythica::SColBuffer colbuf(nrows,path, REALSXP, sizeof(double));
       return colbuf.vectorSexp();      
     }
+    
+  if (columnType == rscythica::SDF_Logical) {
+      rscythica::SColBuffer colbuf(nrows,path, LGLSXP,sizeof(int32_t));
+      SEXP vecsexp = colbuf.vectorSexp(); 
+      Rcpp::RObject vec = vecsexp;
+      vec.attr("class") = "logical";
+      return vec;    
+    }
 
   if (columnType == rscythica::SDF_Factor) {
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));

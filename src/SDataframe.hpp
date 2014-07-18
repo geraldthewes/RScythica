@@ -25,7 +25,7 @@ const string SDF_Date = "date";
 const string SDF_DateTime = "datetime";
 const string SDF_Character = "character";
 const string SDF_Factor = "factor";
-const string SDF_Boolean = "boolean";
+const string SDF_Logical = "logical";
 const string SDF_Integer64 = "int64";
 }
 
