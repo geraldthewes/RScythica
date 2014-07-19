@@ -147,7 +147,7 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
  * \param columnName
  * \return Array of character vectors
  */
-Rcpp::CharacterVector SdsPartitionCols::getFactorLevels(string columnName) {
+std::vector<std::string> SdsPartitionCols::getFactorLevels(string columnName) {
   // Not great - but for now the file is small
   string dbf = schema_.path() + DF_FACTORS_DIR + DF_SEP + columnName;
 
@@ -190,9 +190,9 @@ Rcpp::CharacterVector SdsPartitionCols::getFactorLevels(string columnName) {
   std::vector<std::string> array;
   obj.convert(&array);
 
-  Rcpp::CharacterVector v(array.begin(),array.end());
+  //Rcpp::CharacterVector v(array.begin(),array.end());
 
-  return v;
+  return array;
 
 }
 
@@ -234,41 +234,43 @@ SEXP SdsPartitionCols::split(int split,
     
   if (columnType == rscythica::SDF_Logical) {
       rscythica::SColBuffer colbuf(nrows,path, LGLSXP,sizeof(int32_t));
-      SEXP vecsexp = colbuf.vectorSexp(); 
+      SEXP vecsexp = PROTECT(colbuf.vectorSexp()); 
       Rcpp::RObject vec = vecsexp;
       vec.attr("class") = "logical";
+      UNPROTECT(1);
       return vec;    
     }
 
   if (columnType == rscythica::SDF_Factor) {
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
-      Rcpp::CharacterVector levels = getFactorLevels(columnName);
-      // Change class
-      SEXP factors = colbuf.vectorSexp();
+      SEXP factors = PROTECT(colbuf.vectorSexp());
       Rcpp::RObject rfactor = factors;
-      rfactor.attr("levels") = levels;
+      std::vector<std::string> levels = getFactorLevels(columnName);
+      // Change class
+      rfactor.attr("levels") = Rcpp::wrap(levels);
       rfactor.attr("class") = "factor";
+      UNPROTECT(1);
       return rfactor;
     }
 
 
   if (columnType == rscythica::SDF_Date) {
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
-      SEXP vecsexp = colbuf.vectorSexp();
+      SEXP vecsexp = PROTECT(colbuf.vectorSexp());
       Rcpp::RObject vec = vecsexp;
       vec.attr("class") = "Date";
+      UNPROTECT(1);
       return vec;      
     }
     
     if (columnType == rscythica::SDF_DateTime) {
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
-      SEXP vecsexp = colbuf.vectorSexp();
+      SEXP vecsexp = PROTECT(colbuf.vectorSexp());
       Rcpp::RObject vec = vecsexp;
       Rcpp::CharacterVector classes = 
           CharacterVector::create("POSIXt","POSIXct");
-      //classes[0] = "POSIXt";
-      //classes[1] = "POSIXct";
       vec.attr("class") = classes;
+      UNPROTECT(1);
       return vec;      
     }
     

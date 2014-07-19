@@ -29,7 +29,7 @@ namespace rscythica {
     //int64_t       getRowFromLevelDB();
     int64_t       getRowFromMsgPack();
 
-    Rcpp::CharacterVector       getFactorLevels(string columnName);
+    std::vector<std::string>  getFactorLevels(string columnName);
     
   public:
     SdsPartitionCols(SDataframe &schema, string pkey);
