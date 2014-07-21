@@ -10,16 +10,36 @@ test_that("Dataframe Basics", {
 
     expect_that(x$names()[3], equals("DayOfMonth"))
     expect_that(x$names()[19], equals("Distance"))
+    
+    expect_that(x$col_index("Distance"), equals(19))
+    expect_that(x$col_index("Zulu"), equals(0))
 
     expect_that(length(x$partitions()), equals(1))
     expect_that(x$partitions()[1], equals("2008-01-03"))
 
     expect_that(x$partition_rows('2008-01-03'), equals(999))
     expect_that(x$partition_splits('2008-01-03'), equals(2))
+    
+    ct <- x$col_types()
+    expect_that(length(ct), equals(29))
+    expect_that(as.character(ct[19]), equals("int32"))
+    expect_that(names(ct)[19], equals("Distance"))
+    
+    cattr <- x$col_attributes()
+    expect_that(length(cattr), equals(29))
+    expect_that(as.character(cattr[3]), equals("pkey0p2"))
+    expect_that(names(ct)[3], equals("DayOfMonth"))   
+    
+    
 
     # Test integer vectods
     v <- x$split('2008-01-03',1,19)
 
+    expect_that(length(v), equals(500))
+    expect_that(sum(v), equals(323591))
+    expect_that(v[100], equals(1987))
+    
+    v <- x$splitn('2008-01-03',1,'Distance')
     expect_that(length(v), equals(500))
     expect_that(sum(v), equals(323591))
     expect_that(v[100], equals(1987))

@@ -77,6 +77,12 @@ SDataframe::SDataframe(string path) : path_(path) {
     i++;
   }
   
+  int offset = 0;
+  for(std::vector<SdsColumndef>::iterator it2 = columns_.begin(); 
+      it2 != columns_.end(); 
+      ++it2) {
+    colnameindex_[it2->colname()] = ++offset;
+  }
 }
 
 
@@ -120,6 +126,60 @@ std::vector<string> SDataframe::names() {
   }
   return names;
 }
+
+
+/*!
+ * Return index of a column
+ * \param name of column
+ * \return index of column one based, 0 if invalid name
+ */
+ 
+  int SDataframe::colIndex(std::string name) {
+    return colnameindex_[name];
+  }
+  
+/*!
+ * Return array of column type
+ * \return column type
+ */
+  Rcpp::CharacterVector   SDataframe::colTypes() {
+  int n = ncol();
+  Rcpp::CharacterVector   ctype(n);
+  Rcpp::CharacterVector   cnames(n);  
+    
+  int i=0;  
+  for(std::vector<SdsColumndef>::iterator it = columns_.begin();
+      it != columns_.end();
+      ++it,++i) {
+    ctype[i] = (*it).coltype();
+    cnames[i] = (*it).colname();
+  }
+  
+    ctype.names() = cnames;
+    return ctype;
+  }
+  
+  /*!
+ * Return array of column attributes
+ * \return column attributes
+ */
+ 
+  Rcpp::CharacterVector   SDataframe::colAttributes() {
+  int n = ncol();
+  Rcpp::CharacterVector   cattr(n);
+  Rcpp::CharacterVector   cnames(n);  
+    
+  int i= 0;
+  for(std::vector<SdsColumndef>::iterator it = columns_.begin();
+      it != columns_.end();
+      ++it,++i) {
+    cattr[i] = (*it).attributes();
+    cnames[i] = (*it).colname();
+  }
+  
+    cattr.names() = cnames;
+    return cattr;
+  }
 
 /*!
  * Return list of partitions
@@ -184,12 +244,9 @@ int SDataframe::partitionSplits(string pkey) {
  */
 
 SEXP SDataframe::split(string pkey, int split, int column) {
-  //Rcpp::IntegerVector v;
-
 
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 
-  //int rows = partition.nrow();
   column -= 1; // R is 1 based
   split -= 1;
 
@@ -203,13 +260,26 @@ SEXP SDataframe::split(string pkey, int split, int column) {
 
   }
   
-  //int32_t *data = colbuf.data();
-  //std::vector<int32_t> vraw(data,data+rows);
-  //return Rcpp::wrap(vraw);
-  //return Rcpp::IntegerVector();
-
-
   return retval;
+}
+
+/*!
+ * Return an R object for the split within a partition for a specific column
+ * Object is freed once it's garbage collected by R.
+ * \param pkey partition key
+ * \param split index of split (one based)                                                                                                                                                                                                                      
+ * \param column index of column (one based)
+ * \return A Sexp with the data 
+ */
+
+SEXP SDataframe::splitn(string pkey, int split, std::string col_name) {
+  SEXP retval =  R_NilValue;
+    
+  int colindex = colIndex(col_name);  
+  
+  if (colindex > 0)  retval = this->split(pkey,split,colindex);
+  
+  return retval;  
 }
 
 
@@ -222,9 +292,13 @@ RCPP_MODULE(rscythica) {
 
     .method("ncol",&SDataframe::ncol,"Number of colums")
     .method("names",&SDataframe::names,"Column Names")
+    .method("col_index",&SDataframe::colIndex,"Column Index")
+    .method("col_types",&SDataframe::colTypes,"Column Types")
+    .method("col_attributes",&SDataframe::colAttributes,"Column Attributes")
     .method("partitions",&SDataframe::partitions,"Array of partitions")
     .method("partition_rows",&SDataframe::partitionRows,"Number of rows in a partition")
     .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
-    .method("split",&SDataframe::split,"Access to a split")
+    .method("split",&SDataframe::split,"Access to a split by column index")
+    .method("splitn",&SDataframe::splitn,"Access to a split by column name")
     ;
 }

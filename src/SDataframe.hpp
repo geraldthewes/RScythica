@@ -34,6 +34,7 @@ class SDataframe {
 private:
   string path_;
   std::vector<SdsColumndef> columns_;
+  std::map<std::string,int> colnameindex_;
   int rowsPerSplit_;
 
 public:
@@ -41,7 +42,12 @@ public:
   SDataframe(string path);
 
   int ncol();
-  std::vector<string> names();
+  
+  std::vector<string>   names();
+  int                   colIndex(std::string);
+  Rcpp::CharacterVector   colTypes();
+  Rcpp::CharacterVector   colAttributes();
+   
   int rowsPerSplit();
   string  path();
 
@@ -52,6 +58,7 @@ public:
 
 
   SEXP split(string pkey, int split, int column);
+  SEXP splitn(string pkey, int split, std::string col_name);
 
   // Rownames partion+offset
 
