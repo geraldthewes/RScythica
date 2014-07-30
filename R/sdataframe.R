@@ -22,3 +22,20 @@ p <- paste(p,paste(x$names(),collapse=' '),sep='\n')
 cat(p)
 invisible()
 } 
+
+#' Extract part of an S Data Frame
+#'
+#' 
+#' @param x S Dataframe
+#' @param i Row index of the form partion:split
+#' @param j Column
+#' @return Vector in that position 
+#' #' @examples
+#' #v <-  x["2008-01-03:1","AirTime"]
+#' @export
+"[.Rcpp_SDataframe" <- function(x,i,j) {
+  v <- strsplit(i,':')
+  p <- v[[1]][1]
+  split <- as.numeric(v[[1]][2])
+  x$splitn(p,split,j)
+}

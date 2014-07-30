@@ -167,3 +167,18 @@ test_that("Dataframe Iterator", {
 
 
 })
+
+
+test_that("Dataframe R functions", {
+  
+  scy <- Module("rscythica", PACKAGE="RScythica")
+  sdf2 <- scy$SDataframe
+  x <- new(sdf2,path="../extdata/airline.sds")
+  
+  v <- x["2008-01-03:1","AirTime"]
+  
+  expect_that(v[484], equals(68))
+  
+ 
+  
+})
