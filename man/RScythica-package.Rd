@@ -35,21 +35,21 @@ bigmemory
 }
 \examples{
 library(RScythica)
-sdf <- Module("rscythica", PACKAGE="RScythica")
-sdf2 <- sdf$SDataframe
 
-#x <- new(sdf2,path="rscythica/tests/extdata/airline.sds")
-#x$ncol()
-#x$names()
-#x$partitions()
+\dontrun{
+x <- open_sdataset("tests/extdata/airline.sds")
+x$ncol()
+x$names()
+x$partitions()
 
-#x$partition_rows('2008-01-03')
+x$partition_rows('2008-01-03')
 
-#v <- x$split('2008-01-03',1,19)
+v <- x$split('2008-01-03',1,19)
 
-#it <- sdf_iterator(df)
-#c <- nextElem(it)
+it <- sdf_iterator(df)
+c <- nextElem(it)
 
-#s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+}
 
 }

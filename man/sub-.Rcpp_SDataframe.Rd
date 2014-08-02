@@ -14,12 +14,13 @@
 }
 \value{
 Vector in that position
-#'
 }
 \description{
 Extract part of an S Data Frame
 }
 \examples{
-#v <-  x["2008-01-03:1","AirTime"]
+\dontrun{
+v <-  x["2008-01-03:1","AirTime"]
+}
 }
 

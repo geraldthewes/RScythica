@@ -2,6 +2,8 @@
 
 S3method("[",Rcpp_SDataframe)
 S3method(print,Rcpp_SDataframe)
+export(makeconfig)
+export(open_sdataset)
 export(sdf_iterator)
 import(Rcpp)
 import(foreach)
