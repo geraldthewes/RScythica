@@ -12,7 +12,7 @@
 
 #' Create an initial configuration file 
 #'
-#' Thie function is used to generate a sample configuration from a sample of the data. 
+#' This function is used to generate a sample configuration from a sample of the data. 
 #' The configuration file can then be edited further. The sample of the data is obtained by
 #' reading a sample of the dataset using a function like read.table or read.csv. Since
 #' S datasets are aimed are very large datasets, you usually only need to read a few records,
@@ -92,4 +92,37 @@ invisible()
   p <- v[[1]][1]
   split <- as.numeric(v[[1]][2])
   x$splitn(p,split,j)
+}
+
+
+#' Return a split as a dataframe
+#'
+#' Access a split as a dataframe
+#'
+#' @param sds S Dataframe
+#' @param partion key
+#' @param i split index
+#' @return Returns the split as a dataframe
+#' @examples
+#' \dontrun{
+#'  df <- as_data_frame_split(airline,'2008-01-03',1)
+#' }
+#' @export
+as_data_frame_split <- function (sds,partition,split) {
+  df <- NULL
+  col.names <- x$names()
+  o <- 1
+  for ( i in 1:sds$ncol()) {
+    v <- sds$split(partition, split, i)
+    if (!is.null(v)) {
+      if (is.null(df)) {
+        df <- data.frame(v)
+      } else {
+        df <- cbind(df, v)
+      }
+      names(df)[o] <- col.names[i]
+      o <- o+1
+    }
+  }
+  df
 }

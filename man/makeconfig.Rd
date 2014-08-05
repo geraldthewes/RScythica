@@ -15,7 +15,7 @@ makeconfig(ofile, df, rows.per.split = 1e+06, is.na = "NA")
 \item{is.na}{String representing NA in the data}
 }
 \description{
-Thie function is used to generate a sample configuration from a sample of the data.
+This function is used to generate a sample configuration from a sample of the data.
 The configuration file can then be edited further. The sample of the data is obtained by
 reading a sample of the dataset using a function like read.table or read.csv. Since
 S datasets are aimed are very large datasets, you usually only need to read a few records,
