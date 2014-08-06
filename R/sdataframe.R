@@ -100,17 +100,17 @@ invisible()
 #' Access a split as a dataframe
 #'
 #' @param sds S Dataframe
-#' @param partion key
-#' @param i split index
+#' @param partition key
+#' @param split index
 #' @return Returns the split as a dataframe
 #' @examples
 #' \dontrun{
 #'  df <- as_data_frame_split(airline,'2008-01-03',1)
 #' }
 #' @export
-as_data_frame_split <- function (sds,partition,split) {
+as_data_frame_split <- function (sds,partition,split=1) {
   df <- NULL
-  col.names <- x$names()
+  col.names <- sds$names()
   o <- 1
   for ( i in 1:sds$ncol()) {
     v <- sds$split(partition, split, i)

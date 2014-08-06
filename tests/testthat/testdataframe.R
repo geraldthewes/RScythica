@@ -65,9 +65,21 @@ test_that("Dataframe Basics", {
     v <- x$split('2008-01-03',1,29)
     expect_that(v[5], equals(32))
     expect_true(is.na(v[6]))
+    
 
 })
 
+test_that("Dataframe From Split", {
+  sdf <- open_sdataset("../extdata/airline.sds")
+  # Test data frames
+  df <- as_data_frame_split(sdf,'2008-01-03')
+  expect_that(nrow(df), equals(500))
+# not every column is supported today
+  expect_that(ncol(df), equals(22))   
+  expect_that(names(df)[13], equals('TaxiIn'))
+  expect_that(df[23,13], equals(2))   
+  expect_that(df[23,"TaxiIn"], equals(2))   
+})
 
 test_that("Dataset Iris", {
     
@@ -150,10 +162,7 @@ test_that("Dataset Noaa", {
 })
 
 test_that("Dataframe Iterator", {
-    
-    scy <- Module("rscythica", PACKAGE="RScythica")
-    sdf2 <- scy$SDataframe
-    df <- new(sdf2,path="../extdata/airline.sds")
+    df <- open_sdataset("../extdata/airline.sds")
 
     it <- sdf_iterator(df)
     c <- nextElem(it)

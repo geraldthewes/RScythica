@@ -81,5 +81,6 @@ Current limitations include:
     * integer (32-bit)
     * numeric (64-bit Double)
     * factor
+    * logicals
     * Date
     * DateTime (POSIXct)

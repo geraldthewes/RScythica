@@ -3,14 +3,14 @@
 \alias{as_data_frame_split}
 \title{Return a split as a dataframe}
 \usage{
-as_data_frame_split(sds, partition, split)
+as_data_frame_split(sds, partition, split = 1)
 }
 \arguments{
 \item{sds}{S Dataframe}
 
-\item{partion}{key}
+\item{partition}{key}
 
-\item{i}{split index}
+\item{split}{index}
 }
 \value{
 Returns the split as a dataframe

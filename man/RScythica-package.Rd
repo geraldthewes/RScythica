@@ -46,6 +46,8 @@ x$partition_rows('2008-01-03')
 
 v <- x$split('2008-01-03',1,19)
 
+df <- as_data_frame_split(x,'2008-01-03')
+
 it <- sdf_iterator(df)
 c <- nextElem(it)
 
