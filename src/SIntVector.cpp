@@ -52,7 +52,7 @@ SEXP SIntVector::select_op_eq(SEXP v, SEXP out, int value) {
       uint64_t bit64 = 0;
       for (int i=0;i<16;i++) {
         __m128i v4 = _mm_loadu_si128(vbase + i);
-        __m128i o4 = _mm_cmpeq_ss(v4, value4);
+        __m128i o4 = _mm_cmpeq_epi32(v4, value4);
     
         uint64_t bit4 =  _mm_extract_epi32(o4,0)?0x01:0x00 |
                     _mm_extract_epi32(o4,1)?0x02:0x00 |
