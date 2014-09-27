@@ -308,5 +308,7 @@ RCPP_MODULE(rscythica) {
     .constructor()
     
     .method("op.eq",&SIntVector::select_op_eq,"Equal to Value")
+    .method("op.gt",&SIntVector::select_op_gt,"Greater to Value")
+    .method("op.lt",&SIntVector::select_op_lt,"Less to Value")
     ;
 }
