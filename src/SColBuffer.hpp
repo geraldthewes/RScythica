@@ -15,7 +15,6 @@ Lesser General Public License for more details.
 #include <Rcpp.h>  
 #include <Rinternals.h>
 
-//#include "SdsColumndef.hpp"
 
 using namespace std;
 

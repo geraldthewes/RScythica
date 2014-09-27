@@ -21,6 +21,7 @@ Lesser General Public License for more details.
 #include "SDataframe.hpp"
 #include "SColBuffer.hpp"
 #include "SPartitionCols.hpp"
+#include "SIntVector.hpp"
 
 #include <Rinternals.h>
 
@@ -300,5 +301,12 @@ RCPP_MODULE(rscythica) {
     .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
     .method("split",&SDataframe::split,"Access to a split by column index")
     .method("splitn",&SDataframe::splitn,"Access to a split by column name")
+    ;
+    
+  class_<SIntVector>("SIntVector")
+
+    .constructor()
+    
+    .method("op.eq",&SIntVector::select_op_eq,"Equal to Value")
     ;
 }

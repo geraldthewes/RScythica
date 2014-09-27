@@ -1,6 +1,6 @@
 # RScythica
 
-RScythica Dataframes, also called S Dataframes, are large scale, read-only,
+RScythica Dataframes, also called S Dataframes, are large scale, read-only, memory-mapped
 eventually distributed, data frames which are both partioned and
 broken into large splits. S Dataframes are created using external utilities.
 
@@ -13,7 +13,7 @@ Features
 
 * S Dataframes are partioned. 
 
-* Partitions are further broken into large splits, typically 64MB in size for efficiency
+* Partitions are further broken into large splits for efficiency
 
 For more defails, check the R Package documentation.
 

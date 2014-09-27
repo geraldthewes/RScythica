@@ -56,41 +56,6 @@ int64_t SdsPartitionCols::nrow() {
   return nrow_;
 }
 
-/*
-int64_t SdsPartitionCols::getRowFromLevelDB() {
-  int64_t nrow;
-  leveldb::Options options;
-  leveldb::DB  *db;
-
-  //options.create_if_missing = true;
-
-  // $$$ Some serious error handling is needed here...
-
-  string dbf = schema_.path() + DF_DATA_DIR + DF_SEP + pkey_ + DF_SEP + DF_PDB;
-  
-  leveldb::Status status = leveldb::DB::Open(options, dbf, &db);
-
-  if (!status.ok()) {
-    string msg = "Unable to open error:" + status.ToString() + " File:" + dbf;
-    throw std::runtime_error(msg);
-  }
- 
-
-  // Pretty hacky - but leveldb took a weird approach
-  string tmp;
-  leveldb::Status s = db->Get(leveldb::ReadOptions(), DB_NROW, &tmp);
-
-  if  (tmp.size() >= 8) {
-    int64_t  *p;
-    p = (int64_t *)tmp.data();
-    nrow = p[0];
-  }
-
-  delete db;
-
-  return nrow;
-}
-*/
 
 int64_t SdsPartitionCols::getRowFromMsgPack() {
   // Not great - but for now the file is small
