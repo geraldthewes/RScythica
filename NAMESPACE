@@ -3,7 +3,6 @@
 S3method("[",Rcpp_SDataframe)
 S3method(print,Rcpp_SDataframe)
 export(as_data_frame_split)
-export(bit)
 export(makeconfig)
 export(open_sdataset)
 export(sdf_iterator)
