@@ -167,4 +167,21 @@ unsigned int SIntVector::filter_len(SEXP lv) {
    return bitcount;
 }
 
+SEXP SIntVector::collapse(SEXP src, SEXP lv) {
+    unsigned int size = filter_len(lv);
+      
+    Rcpp::IntegerVector  out(size);
+
+    int *srcp = INTEGER(src);
+    uint8_t *lvp = (uint8_t *)RAW(lv);
+    int *outp = out.begin();
+
+    for(int i=0;i<size;srcp++) {
+        if (*lvp++) {
+          *outp++ = *srcp;
+          i++;
+        }
+    }
+    return out;
+} 
 

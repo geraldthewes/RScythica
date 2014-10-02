@@ -30,6 +30,7 @@ namespace rscythica {
        SEXP  select_op_gt(SEXP v, SEXP out, int value);
        
        unsigned int filter_len(SEXP lv);
+       SEXP collapse(SEXP src, SEXP lv);
   };
 }
 
