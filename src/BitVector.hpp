@@ -10,8 +10,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
 
-#ifndef SDS_INTVECTOR_H
-#define SDS_INTVECTOR_H
+#ifndef SDS_BITVECTOR_H
+#define SDS_BITVECTOR_H
 
 #include <Rcpp.h>
 
@@ -21,16 +21,15 @@ using namespace Rcpp;
 
 namespace rscythica {
   
-  class SIntVector {
+  class BitVector {
+    private:
+         SEXP  lv_;
     public:
-       SIntVector();
-       
-       SEXP  select_op_eq(SEXP v, SEXP out, int value);
-       SEXP  select_op_lt(SEXP v, SEXP out, int value);
-       SEXP  select_op_gt(SEXP v, SEXP out, int value);
-       
-       SEXP collapse(SEXP src, SEXP lv);
+       BitVector(SEXP lv);
+                     
+       unsigned int popcount();
+
   };
 }
 
-#endif /* SDS_INTVECTOR_H */
+#endif /* SDS_BITVECTOR_H */

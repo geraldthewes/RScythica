@@ -15,6 +15,7 @@ Lesser General Public License for more details.
 #include <Rcpp.h>
 
 #include "SIntVector.hpp"
+#include "BitVector.hpp"
 
 #include "RInternals.h"
 
@@ -142,33 +143,10 @@ SEXP SIntVector::select_op_gt(SEXP v, SEXP out, int value) {
 }
 
 
-unsigned int SIntVector::filter_len(SEXP lv) {
-   // First process in bulk of 16 bytes
-   int l8 = LENGTH(lv);
-   __m128i *ptr128i = (__m128i *)RAW(lv);
-   int w = l8/16;
-   unsigned int bitcount = 0;
-   for(int i = 0; i<w; i++,ptr128i++) {
-     __m128i l16 = _mm_loadu_si128(ptr128i);
-     unsigned int x = _mm_movemask_epi8(l16);
-     x = x  - ((x >> 1) & 0x5555);
-     x = (x & 0x3333) + ((x >> 2) & 0x3333);
-     x = (x & 0x0f0f) + ((x >> 4) & 0x0f0f);
-     x = x + (x >> 8);
-     bitcount += x & 0x1f;
-   }
-   // Handle tail
-   int rem = l8 % 16;
-   uint8_t *ptr8 = (uint8_t *)ptr128i;
-   for (int i=0; i< rem; i++,ptr8++) {
-     bitcount  += *ptr8 & 0x01;
-   }
-     
-   return bitcount;
-}
-
 SEXP SIntVector::collapse(SEXP src, SEXP lv) {
-    unsigned int size = filter_len(lv);
+    // May be able to speed this up using SSE if assumimg vector is mostly sparse
+    BitVector  lv2 = BitVector(lv);
+    unsigned int size = lv2.popcount();
       
     Rcpp::IntegerVector  out(size);
 
