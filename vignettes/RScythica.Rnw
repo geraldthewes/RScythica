@@ -19,26 +19,85 @@ broken into large splits. S Dataframes are created using external utilities.
 
 \section{Simple Example}
 
+Typically you receive data in a large CSV file. Before it can be used in R, the CSV file need to be transformed in a binary Scythica dataset.
+
+The first step is creating the necessary configuration file in YAML format. RScythica comes with a utily function to generate a templated configration
+
+<<>>=
+library(yaml)
+library(RScythica)
+# Use read.table to read 100 rows
+sample <- read.table('../tests/extdata/airline.csv',sep=',', header=TRUE, nrows=100)
+# Create a templated file that can be edited
+makeconfig('example.yaml',sample)
+@
+
+Talk about partitions...
+
+Then process the CSV file using the sdscreate executable
+
 <<eval=FALSE>>=
+#sdscreate airline.yaml airline.sds airline.csv
+@
+
+<<>>=
 library(RScythica)
 
+#Open Dataset
+ds <- open_sdataset("../tests/extdata/airline.sds")
 
-ds <- open_sdataset("tests/extdata/airline.sds")
-
+# Return number of columns in the dataset
 ds$ncol()
+
+# Return the column names in the dataset
 ds$names()
+
+# List all the partitions in the dataset
 ds$partitions()
 
+# Return number of rows in a given partition
 ds$partition_rows('2008-01-03')
 
+# Extract a vector given a partition, split and column index
 v <- ds$split('2008-01-03',1,19)
 
+# Or equivalently use column name
+v <- ds$splitn('2008-01-03',1,"AirTime")
+
+# Or even simpler use [ where partition and split are combined with :
+v <- ds["2008-01-03:1","AirTime"]
+
+# To exact all the columns in a dataframe use as_data_frame_split
 df <- as_data_frame_split(ds,'2008-01-03')
 
-it <- sdf_iterator(df)
-c <- nextElem(it)
+#it <- sdf_iterator(df)
+#c <- nextElem(it)
 
-s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+#s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+@
+
+
+
+\section{Filter}
+
+Filter operations allow you to select only some rows from a dataset.
+
+<<>>=
+
+library(RScythica)
+m   <- Module("rscythica", PACKAGE="RScythica")
+bm <- m$SIntVector
+bm.v <- new(bm)
+
+ds <- open_sdataset("../tests/extdata/airline.sds")
+v <- ds$split('2008-01-03',1,19)
+
+ob <- raw(500)
+y <- bm.v$op.eq(v,ob,515)
+
+
+y <- bm.v$op.gt(v,ob,1000)
+out <- bm.v$collapse(v,y)
 @
 
 
