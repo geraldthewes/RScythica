@@ -1,0 +1,45 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\title{RScythica Memory Mapped Vectors}
+
+\author{Gerald Hewes}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+RScythica Dataframes, also called S Dataframes, are large scale, read-only, memory-mapped
+eventually distributed, data frames which are both partioned and
+broken into large splits. S Dataframes are created using external utilities.
+
+\section{Simple Example}
+
+<<eval=FALSE>>=
+library(RScythica)
+
+
+ds <- open_sdataset("tests/extdata/airline.sds")
+
+ds$ncol()
+ds$names()
+ds$partitions()
+
+ds$partition_rows('2008-01-03')
+
+v <- ds$split('2008-01-03',1,19)
+
+df <- as_data_frame_split(ds,'2008-01-03')
+
+it <- sdf_iterator(df)
+c <- nextElem(it)
+
+s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+@
+
+
+\end{document}
