@@ -21,6 +21,8 @@ broken into large splits. S Dataframes are created using external utilities.
 
 Typically you receive data in a large CSV file. Before it can be used in R, the CSV file need to be transformed in a binary Scythica dataset.
 
+\subsection{Creating a Dataset}
+
 The first step is creating the necessary configuration file in YAML format. RScythica comes with a utily function to generate a templated configration
 
 <<>>=
@@ -39,6 +41,9 @@ Then process the CSV file using the sdscreate executable
 <<eval=FALSE>>=
 #sdscreate airline.yaml airline.sds airline.csv
 @
+
+\subsection{Basic Usage of Datasets}
+
 
 <<>>=
 library(RScythica)
@@ -69,11 +74,20 @@ v <- ds["2008-01-03:1","AirTime"]
 
 # To exact all the columns in a dataframe use as_data_frame_split
 df <- as_data_frame_split(ds,'2008-01-03')
+@
 
-#it <- sdf_iterator(df)
-#c <- nextElem(it)
+\subsection{Iterators}
 
-#s <- foreach(i=sdf_iterator(df),.combine=sum) %do% df$split(i$pkey,i$split,19)
+Iterators allow you to iterate over all the partions and splits.
+
+<<>>=
+it <- sdf_iterator(ds)
+c <- nextElem(it)
+c
+
+# Iterate over all partitions and split and do a sum
+s <- foreach(i=sdf_iterator(ds),.combine=sum) %do% ds$split(i$pkey,i$split,19)
+s
 @
 
 
@@ -84,20 +98,28 @@ Filter operations allow you to select only some rows from a dataset.
 
 <<>>=
 
-library(RScythica)
 m   <- Module("rscythica", PACKAGE="RScythica")
+# Create an Integer Vector
 bm <- m$SIntVector
 bm.v <- new(bm)
 
-ds <- open_sdataset("../tests/extdata/airline.sds")
 v <- ds$split('2008-01-03',1,19)
 
+# Create Filter BitVector
 ob <- raw(500)
+
+# Apply == 515
 y <- bm.v$op.eq(v,ob,515)
+y
 
-
+# Apply > 1000
 y <- bm.v$op.gt(v,ob,1000)
+y
+
+# Filter row using BitVector
 out <- bm.v$collapse(v,y)
+out
+
 @
 
 
