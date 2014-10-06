@@ -24,6 +24,8 @@ using namespace rscythica;
 BitVector::BitVector(SEXP lv) : lv_(lv)  {
 }
 
+BitVector::BitVector(int size) {
+}
 
 unsigned int BitVector::popcount() {
    // First process in bulk of 16 bytes

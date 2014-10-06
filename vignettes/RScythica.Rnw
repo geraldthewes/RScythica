@@ -116,8 +116,15 @@ y
 y <- bm.v$op.gt(v,ob,1000)
 y
 
+# Number of True 
+bm <- m$BitVector
+bv <- new(bm,y)
+bv$popcount()
+
+
 # Filter row using BitVector
 out <- bm.v$collapse(v,y)
+length(out)
 out
 
 @

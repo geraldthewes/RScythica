@@ -317,6 +317,7 @@ RCPP_MODULE(rscythica) {
   class_<BitVector>("BitVector")
 
     .constructor<SEXP>()
+    .constructor<int>()
     
     .method("popcount", &BitVector::popcount,"Number of True / Population count")
     ;
