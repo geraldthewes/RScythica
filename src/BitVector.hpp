@@ -26,9 +26,15 @@ namespace rscythica {
          SEXP  lv_;
     public:
        BitVector(SEXP lv);
-       BitVector(int size);
+       
+       SEXP asSexp();
                      
        unsigned int popcount();
+       
+       SEXP op_or(SEXP ov, SEXP rv);
+       SEXP op_and(SEXP ov, SEXP rv);
+       SEXP op_not();
+
 
   };
 }

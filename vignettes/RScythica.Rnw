@@ -54,8 +54,9 @@ ds <- open_sdataset("../tests/extdata/airline.sds")
 # Return number of columns in the dataset
 ds$ncol()
 
-# Return the column names in the dataset
+# Return the column names and types in the dataset
 ds$names()
+ds$col_types()
 
 # List all the partitions in the dataset
 ds$partitions()
@@ -106,7 +107,7 @@ bm.v <- new(bm)
 v <- ds$split('2008-01-03',1,19)
 
 # Create Filter BitVector
-ob <- raw(500)
+ob <- sindex(ds$rows_per_split)
 
 # Apply == 515
 y <- bm.v$op.eq(v,ob,515)

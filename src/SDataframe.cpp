@@ -317,8 +317,12 @@ RCPP_MODULE(rscythica) {
   class_<BitVector>("BitVector")
 
     .constructor<SEXP>()
-    .constructor<int>()
     
+    .method("asSexp", &BitVector::asSexp,"Return SEXP")
     .method("popcount", &BitVector::popcount,"Number of True / Population count")
+    .method("op.or", &BitVector::op_or,"OR")
+    .method("op.and", &BitVector::op_and,"AND")
+    .method("op.not", &BitVector::op_not,"NOT")
+    
     ;
 }
