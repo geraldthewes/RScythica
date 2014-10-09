@@ -67,7 +67,7 @@ SEXP BitVector::op_or(SEXP ov, SEXP rv) {
      __m128i lw = _mm_loadu_si128(ptrl128i);
      __m128i rw = _mm_loadu_si128(ptrr128i);
      __m128i ow = _mm_or_si128(lw,rw);
-     _mm_store_si128(ptro128i,ow);
+     _mm_storeu_si128(ptro128i,ow);
    }
    
    // Handle tail
@@ -94,7 +94,7 @@ SEXP BitVector::op_and(SEXP ov, SEXP rv) {
      __m128i lw = _mm_loadu_si128(ptrl128i);
      __m128i rw = _mm_loadu_si128(ptrr128i);
      __m128i ow = _mm_and_si128(lw,rw);
-     _mm_store_si128(ptro128i,ow);
+     _mm_storeu_si128(ptro128i,ow);
    }
    
    // Handle tail

@@ -70,12 +70,12 @@ test_that("Test SIndex OR", {
 })
 
 
-test_that("Test SIndex OR", {
+test_that("Test SIndex AND", {
   a <- sindex(100)
   a[23] = as.raw(0xff)
   b <- sindex(100)
   b[13] = as.raw(0xff)
-  b[23] = as.raw(oxff)
+  b[23] = as.raw(0xff)
   c <- sindex(100)
   
   
