@@ -7,7 +7,7 @@ test_that("Test EQ", {
   v <- sdf$split('2008-01-03',1,19)
   
   expect_that(length(v), equals(500))  
-  ob <- sindex(500)
+  ob <- sindex(length(v))
   
   m   <- Module("rscythica", PACKAGE="RScythica")
   bm <- m$SIntVector
@@ -30,14 +30,14 @@ test_that("Test GT", {
   v <- sdf$split('2008-01-03',1,19)
   
   expect_that(length(v), equals(500))  
-  ob <- sindex(500)
+  ob <- sindex(length(v))
   
   m   <- Module("rscythica", PACKAGE="RScythica")
   bm <- m$SIntVector
   bm.v <- new(bm)
   
   y <- bm.v$op.gt(v,ob,1000)
-  expect_that(length(y), equals(500))
+  expect_that(length(y), equals(length(v)))
   
   out <- bm.v$collapse(v,y)
   ref <- v[v>1000]

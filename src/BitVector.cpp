@@ -103,7 +103,7 @@ SEXP BitVector::op_and(SEXP ov, SEXP rv) {
    uint8_t *ptrr8 = (uint8_t *)ptrr128i;
    uint8_t *ptro8 = (uint8_t *)ptro128i;   
    for (int i=0; i< rem; i++,ptrl8++,ptrr8++,ptro8++) {
-     *ptro8  = *ptrl8 | *ptrr8;
+     *ptro8  = *ptrl8 & *ptrr8;
    }
      
    return ov;  
