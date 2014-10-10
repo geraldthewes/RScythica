@@ -3,7 +3,7 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-\title{RScythica Memory Mapped Vectors}
+\title{RScythica - A Memory Mapped Data Set}
 
 \author{Gerald Hewes}
 
@@ -14,8 +14,20 @@
 \section{Introduction}
 
 RScythica Dataframes, also called S Dataframes, are large scale, read-only, memory-mapped
-eventually distributed, data frames which are both partioned and
+data sets which are both partioned and
 broken into large splits. S Dataframes are created using external utilities.
+
+\subsection{Background}
+
+Scythica was developed to help data scientist analyze large datasets in R. Key features are:
+
+\begin{itemize}
+  \item S Datasets consists of multiple binary files that hold data in columns of vectors. The files are   mapped directly into an R process using R 3.1.0 support for custom allocators. The data is pre-processed by external utilities. Since R memory maps the data directly into it's process, access is very fast and much more efficient.
+  \item Data is by default partitioned by one of the dataset columns. For example in ad tech it is common to partition data by date.
+  \item To handle really large partitions, the partitions can be broken into multiple splits.
+Effectivily the key to a vector consists of the partition plus the split index.
+\end{itemize}
+
 
 \section{Simple Example}
 
@@ -50,6 +62,7 @@ library(RScythica)
 
 #Open Dataset
 ds <- open_sdataset("../tests/extdata/airline.sds")
+print(ds)
 
 # Return number of columns in the dataset
 ds$ncol()

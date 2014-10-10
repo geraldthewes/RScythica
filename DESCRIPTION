@@ -1,8 +1,8 @@
 Package: RScythica
 Type: Package
 Title: Access to external data sets via memory mapped files
-Version: 1.0
-Date: 2014-03-26
+Version: 0.1
+Date: 2014-10-09
 Author: Gerald Hewes <gerald@geraldthewes.org>
 Maintainer: Gerald Hewes <gerald@geraldthewes.org>
 Description: Maps externally created data sets in R, allowing for analysis of

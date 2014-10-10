@@ -6,6 +6,10 @@ broken into large splits. S Dataframes are created using external utilities.
 
 LICENSE: LGPL 2.1
 
+Note: RScythica is under development and is not production ready. Interfaces are evolving and subject to change.
+
+Note2: Some functions currently require C++ support for SSE 4.1 instructions.
+
 Features
 ========
 
