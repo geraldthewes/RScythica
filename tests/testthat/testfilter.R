@@ -90,4 +90,22 @@ test_that("Test SIndex AND", {
   expect_that(ov[13] > 0, is_false())
 })
 
+test_that("Test SIndex NOT", {
+  a <- sindex(100)
+  a[23] = as.raw(0xff)
   
+  
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  bm <- m$BitVector
+  bv <- new(bm,a)
+  
+  expect_that(bv$popcount(), equals(1))
+  
+  # bitwise not
+  ov <- bv$op.not()
+  
+  expect_that(bv$popcount(), equals(99))
+  expect_that(ov[23] == 0, is_true())
+  expect_that(ov[13] > 0, is_true())
+  
+})  
