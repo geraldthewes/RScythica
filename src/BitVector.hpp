@@ -33,6 +33,7 @@ namespace rscythica {
        
        SEXP op_or(SEXP ov, SEXP rv);
        SEXP op_and(SEXP ov, SEXP rv);
+       SEXP op_andnot(SEXP ov, SEXP rv);
        SEXP op_not();
 
 

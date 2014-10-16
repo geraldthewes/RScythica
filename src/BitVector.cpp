@@ -108,6 +108,33 @@ SEXP BitVector::op_and(SEXP ov, SEXP rv) {
      
    return ov;  
 }
+
+SEXP BitVector::op_andnot(SEXP ov, SEXP rv) {
+       // First process in bulk of 16 bytes
+   int l8 = LENGTH(lv_);
+   __m128i *ptrl128i = (__m128i *)RAW(lv_);
+   __m128i *ptrr128i = (__m128i *)RAW(rv);
+   __m128i *ptro128i = (__m128i *)RAW(ov);
+   int w = l8/16;
+
+   for(int i = 0; i<w; i++,ptrl128i++,ptrr128i++,ptro128i++) {
+     __m128i lw = _mm_loadu_si128(ptrl128i);
+     __m128i rw = _mm_loadu_si128(ptrr128i);
+     __m128i ow = _mm_andnot_si128(lw,rw);
+     _mm_storeu_si128(ptro128i,ow);
+   }
+   
+   // Handle tail
+   int rem = l8 % 16;
+   uint8_t *ptrl8 = (uint8_t *)ptrl128i;
+   uint8_t *ptrr8 = (uint8_t *)ptrr128i;
+   uint8_t *ptro8 = (uint8_t *)ptro128i;   
+   for (int i=0; i< rem; i++,ptrl8++,ptrr8++,ptro8++) {
+     *ptro8  = ~(*ptrl8) & *ptrr8;
+   }
+     
+   return ov;  
+}
   
 SEXP BitVector::op_not() {
          // First process in bulk of 16 bytes

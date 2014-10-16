@@ -322,6 +322,7 @@ RCPP_MODULE(rscythica) {
     .method("popcount", &BitVector::popcount,"Number of True / Population count")
     .method("op.or", &BitVector::op_or,"OR")
     .method("op.and", &BitVector::op_and,"AND")
+    .method("op.andnot", &BitVector::op_andnot,"AND")
     .method("op.not", &BitVector::op_not,"NOT")
     
     ;

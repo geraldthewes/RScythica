@@ -90,6 +90,26 @@ test_that("Test SIndex AND", {
   expect_that(ov[13] > 0, is_false())
 })
 
+test_that("Test SIndex ANDNOT", {
+  a <- sindex(100)
+  a[23] = as.raw(0xff)
+  b <- sindex(100)
+  b[13] = as.raw(0xff)
+  b[23] = as.raw(0xff)
+  c <- sindex(100)
+  
+  
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  bm <- m$BitVector
+  bv <- new(bm,a)
+  ov <- bv$op.andnot(c, b)
+  
+  bv.o <- new(bm,ov)
+  expect_that(bv.o$popcount(), equals(1))
+  expect_that(ov[13] > 0, is_true())
+  expect_that(ov[23] > 0, is_false())
+})
+
 test_that("Test SIndex NOT", {
   a <- sindex(100)
   a[23] = as.raw(0xff)
