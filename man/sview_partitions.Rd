@@ -17,6 +17,6 @@ view
 Add partition filter
 }
 \examples{
-view <- sview(views, "2008-01-03")
+v <- sview_partitions(v,c("2008-01-03"))
 }
 

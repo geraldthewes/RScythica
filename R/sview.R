@@ -60,7 +60,7 @@ sview_columns <- function(v, columns) {
 #' @param partitions List of partition names
 #' @return view 
 #' @examples
-#'  view <- sview(views, "2008-01-03")
+#'  v <- sview_partitions(v,c("2008-01-03"))
 #' @export 
 sview_partitions <- function(v, partitions) {
   parts <- (v$ds)$partitions()
@@ -72,4 +72,49 @@ sview_partitions <- function(v, partitions) {
   }
   v$partitions <- partitions
   v 
+}
+
+
+#' Return number of rows in filter
+#'
+#' @param v Scythica View
+#' @return number of rows
+#' @examples
+#'  frow <- sview_rows(views)
+#' @export 
+sview_rows <- function(v) {
+  rows = 0;
+  for (p in v$partitions) {
+    rows <- rows + (v$ds)$partition_rows(p)
+  }
+  rows
+}
+
+#' Execute query
+#'
+#' @param v Scythica View
+#' @return materialized dataframe
+#' @examples
+#'  view <- sview(views, "2008-01-03")
+#' @export 
+sview_execute <- function(v) {
+  rows = sview_rows(v)
+  types <- (v$ds)$col_types()
+  res <- NULL
+  for (c in v$columns) {
+    col <- switch(types[c],
+             int32=integer(rows),
+             factor=factor(rows),
+             logical=logical(rows),
+             integer(rows))
+   
+    if (is.null(res)) {
+      res <- data.frame(col)
+      names(res)[1] = c
+    } else {
+      res <- cbind(res,col)   
+      names(res)[-1] = c
+    }
+  }
+  res
 }
