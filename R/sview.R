@@ -17,7 +17,7 @@
 #'  view <- sview(ds)
 #' @export 
 sview <- function(ds) {
-v  = list(ds=ds,partitions=NULL, columns=NULL)
+v  = list(ds=ds,partitions=NULL, columns=NULL,filter=NULL)
 class(v) <- "sview"
 v
 }
@@ -46,7 +46,7 @@ sview_columns <- function(v, columns) {
   cols <- (v$ds)$names()
   for ( c in columns) {
     if (!(c %in% cols)) {
-      message(paste(c,"not in sdataframe columns - ignoring filter",sep=' '))
+      warning(paste(c,"not in sdataframe columns - ignoring filter",sep=' '))
       return(v)
     }
   }
@@ -66,13 +66,26 @@ sview_partitions <- function(v, partitions) {
   parts <- (v$ds)$partitions()
   for ( p in partitions) {
     if (!(p %in% parts)) {
-      message(paste(p,"not in sdataframe partitions - ignoring filter",sep=' '))
+      warning(paste(p,"not in sdataframe partitions - ignoring filter",sep=' '))
       return(v)
     }
   }
   v$partitions <- partitions
   v 
 }
+
+#' Filter based on condition
+#'
+#' @param v Scythica View
+#' @return number of rows
+#' @examples
+#'  v <- sview_filter(v, "ArrTime", "eq", 24)
+#' @export 
+sview_filter <- function(v, variable, operation, value) {
+   v$filter <- list(var=variable,op=operation,val=value)
+   v
+}
+
 
 
 #' Return number of rows in filter
@@ -101,6 +114,7 @@ sview_execute <- function(v) {
   rows = sview_rows(v)
   types <- (v$ds)$col_types()
   res <- NULL
+  
   for (c in v$columns) {
     col <- switch(types[c],
              int32=integer(rows),
@@ -114,6 +128,20 @@ sview_execute <- function(v) {
     } else {
       res <- cbind(res,col)   
       names(res)[-1] = c
+    }
+  }
+  
+  rows = 1L;
+  rows_per_split <- (v$ds)$rows_per_split
+  for (p in v$partitions) {
+    splits <- (v$ds)$partition_splits(p)
+    for (s in 1:splits) {  
+      prows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
+      nrows  <- rows + prows - 1
+      for (c in v$columns) {
+        res[[c]][rows:nrows] <- (v$ds)$splitn(p,s,c) 
+      }
+      rows <- nrows + 1L
     }
   }
   res
