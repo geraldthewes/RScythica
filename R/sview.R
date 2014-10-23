@@ -17,7 +17,11 @@
 #'  view <- sview(ds)
 #' @export 
 sview <- function(ds) {
-v  = list(ds=ds,partitions=NULL, columns=NULL,filter=NULL)
+v  = list(ds=ds,
+          partitions=NULL, 
+          columns=NULL,
+          filter=NULL,
+          bitmap=NULL)
 class(v) <- "sview"
 v
 }
@@ -87,21 +91,59 @@ sview_filter <- function(v, variable, operation, value) {
 }
 
 
-
-#' Return number of rows in filter
+#' Return number of raw rows in filter
 #'
 #' @param v Scythica View
-#' @return number of rows
+#' @return number of raw rows before filtering
 #' @examples
-#'  frow <- sview_rows(views)
+#'  frow <- sview_rawrows(views)
 #' @export 
-sview_rows <- function(v) {
+sview_rawrows <- function(v) {
   rows = 0;
+
   for (p in v$partitions) {
     rows <- rows + (v$ds)$partition_rows(p)
   }
+  
   rows
 }
+
+
+#' Create bitmap filter
+#'
+#' @param v Scythica View
+#' @return v
+#' @examples
+#'  frow <- sview_executea_filter(views)
+#' @export 
+sview_execute_filter <- function(v) {
+  rows = sview_rawrows(v)
+
+  if (is.null(v$filter)) return(v)
+  
+
+  index <- sindex(rows)
+  rows_per_split <- (v$ds)$rows_per_split
+  rows = 1L;
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  bm <- m$BitVector
+  for (p in v$partitions) {
+    splits <- (v$ds)$partition_splits(p)
+    for (s in 1:splits) {    
+      srows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
+      nrows  <- rows + srows - 1L
+      sindex <- sindex(srows)
+      vfactory <- m$SIntVector
+      bm.v <- new(vfactory)
+      a <- bm.v$op.gt((v$ds)$splitn(p,s,(v$filter)$var) ,sindex,(v$filter)$val)
+      index[rows:nrows] <- a 
+      rows <- nrows + 1L    
+    }
+  }
+  v$bitmap <- index
+  v
+}
+
 
 #' Execute query
 #'
@@ -111,7 +153,7 @@ sview_rows <- function(v) {
 #'  view <- sview(views, "2008-01-03")
 #' @export 
 sview_execute <- function(v) {
-  rows = sview_rows(v)
+  rows = sview_rawrows(v)
   types <- (v$ds)$col_types()
   res <- NULL
   
@@ -136,8 +178,8 @@ sview_execute <- function(v) {
   for (p in v$partitions) {
     splits <- (v$ds)$partition_splits(p)
     for (s in 1:splits) {  
-      prows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
-      nrows  <- rows + prows - 1
+      srows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
+      nrows  <- rows + srows - 1L
       for (c in v$columns) {
         res[[c]][rows:nrows] <- (v$ds)$splitn(p,s,c) 
       }
