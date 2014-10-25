@@ -109,7 +109,7 @@ sview_rawrows <- function(v) {
 }
 
 
-#' Create bitmap filter
+#' Create bitmap filters
 #'
 #' @param v Scythica View
 #' @return v
@@ -119,28 +119,27 @@ sview_rawrows <- function(v) {
 sview_execute_filter <- function(v) {
   rows = sview_rawrows(v)
 
-  if (is.null(v$filter)) return(v)
-  
+  if (is.null(v$filter)) {
+    v$bitmap <- NULL
+    return(v)
+  }
 
-  index <- sindex(rows)
   rows_per_split <- (v$ds)$rows_per_split
-  rows = 1L;
   m   <- Module("rscythica", PACKAGE="RScythica")
   bm <- m$BitVector
+  v$bitmap <- list()
   for (p in v$partitions) {
     splits <- (v$ds)$partition_splits(p)
     for (s in 1:splits) {    
       srows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
-      nrows  <- rows + srows - 1L
       sindex <- sindex(srows)
       vfactory <- m$SIntVector
       bm.v <- new(vfactory)
       a <- bm.v$op.gt((v$ds)$splitn(p,s,(v$filter)$var) ,sindex,(v$filter)$val)
-      index[rows:nrows] <- a 
-      rows <- nrows + 1L    
+      k <- sdataframe_key(p,s)
+      v$bitmap[[k]] <- a
     }
   }
-  v$bitmap <- index
   v
 }
 
