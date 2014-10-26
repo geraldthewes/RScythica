@@ -108,6 +108,12 @@ test_that("Dataset Iris", {
     expect_true(is.na(v[47]))
     expect_that(v[25], equals(2.1))
     
+    d <- x$partitions_range('A','Z')
+    expect_is(d,"data.frame")
+    expect_that(nrow(d), equals(3L))
+    expect_that(sum(d$rows), equals(150L))
+    
+    
 })
 
 test_that("Dataset Boston", {

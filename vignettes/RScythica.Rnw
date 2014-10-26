@@ -77,6 +77,9 @@ ds$partitions()
 # Return number of rows in a given partition
 ds$partition_rows('2008-01-03')
 
+# return information on partition range
+ds$partitions_range("2008-01-01",'2008-01-30')
+
 # Extract a vector given a partition, split and column index
 v <- ds$split('2008-01-03',1,19)
 
@@ -149,6 +152,42 @@ length(out)
 out
 
 @
+
+\section{Scythica Dataset format}
+
+\subsection{General Dataset Directory Layout}
+
+Scythica datasets are store in a directory structure as follows:
+
+\begin{verbatim}
+dataset.sds/
+  data/
+      /partition1/
+                 /db.mp -- Meta data for partition
+                 /column1-00000000.dat  -- column 1 split 1
+                 /column1-00000001.dat  -- column 1 split 2
+                 /column2-00000000.dat
+                ...
+      /partition2/
+                 /db.mp
+                 /column1-00000000.dat
+                ..
+  factors/
+         /column1  -- Map of factor index to value
+  schema.cfg -- schema for dataset
+\end{verbatim}
+
+\subsection{Partition Meta Data}
+
+Meta data for the partition is stored in a message pack file. Key attributes are:
+
+\begin{itemize}
+  \item nrow - Number of rows in the partition
+\end{itemize}
+
+\subsection{Data Files}
+
+Data is currently stored in the binary format (currently only tested on x86/64 and arm) in a method compatible with how R internally stores it's raw vectors of data. Data starts offset by 128 bytes to allow for mapping of R's header and R's 3.1 custom allocators.
 
 
 \end{document}
