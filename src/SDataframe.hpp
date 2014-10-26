@@ -66,6 +66,7 @@ public:
   int partitionRows(string pkey);
   int partitionSplits(string pkey);
   Rcpp::DataFrame partitions_range(string from, string to);
+  Rcpp::DataFrame partitions_regex(string exp);
 
 
   SEXP split(string pkey, int split, int column);

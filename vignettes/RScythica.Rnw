@@ -80,6 +80,9 @@ ds$partition_rows('2008-01-03')
 # return information on partition range
 ds$partitions_range("2008-01-01",'2008-01-30')
 
+# return information on parttitions matching a regex
+ds$partitions_regex('2008-01-0?')
+
 # Extract a vector given a partition, split and column index
 v <- ds$split('2008-01-03',1,19)
 

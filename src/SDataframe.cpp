@@ -15,6 +15,7 @@ Lesser General Public License for more details.
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <regex>
 
 #include <yaml-cpp/yaml.h>
 
@@ -275,6 +276,44 @@ Rcpp::DataFrame SDataframe::partitions_range(string from, string to) {
   return partition_info;
 }
 
+/*!
+ * Return partion information based on regexfilter
+ * 
+ * \param exp regular expression
+ * \return dataframe with information on partitions (partition, split, rows)
+ */
+
+Rcpp::DataFrame SDataframe::partitions_regex(string exp) {
+  std::string partition;
+  std::vector<string> partitions;
+
+  boost::filesystem::path p (path_ + rscythica::DF_DATA_DIR);
+
+  std::regex filter(exp);
+  for(directory_iterator it = directory_iterator(p);
+      it != directory_iterator();
+      ++it) {
+    partition = (*it).path().filename().string();
+    if (std::regex_search(partition,filter)) {
+      partitions.push_back((*it).path().filename().string());
+    }
+    
+  }
+  sort(partitions.begin(), partitions.end());
+  
+  int len = partitions.size();
+  std::vector<uint32_t> rows(len);
+
+  for(int i=0; i< len; i++) {
+    rows[i] = partitionRows(partitions[i]);
+  }
+  
+  Rcpp::DataFrame partition_info = 
+      Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
+                              Rcpp::Named("rows")=rows);
+ 
+  return partition_info;
+}
 
 /*!
  * Return an R object for the split within a partition for a specific column
@@ -341,6 +380,7 @@ RCPP_MODULE(rscythica) {
     .method("partition_rows",&SDataframe::partitionRows,"Number of rows in a partition")
     .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
     .method("partitions_range",&SDataframe::partitions_range,"Dataframe on partitions in a range")
+    .method("partitions_regex",&SDataframe::partitions_regex,"Dataframe on partitions matching regex")
     .method("split",&SDataframe::split,"Access to a split by column index")
     .method("splitn",&SDataframe::splitn,"Access to a split by column name")
     ;

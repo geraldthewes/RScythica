@@ -113,6 +113,10 @@ test_that("Dataset Iris", {
     expect_that(nrow(d), equals(3L))
     expect_that(sum(d$rows), equals(150L))
     
+    d <- x$partitions_regex('Iris-v.*')
+    expect_is(d,"data.frame")
+    expect_that(nrow(d), equals(2L))
+    expect_that(sum(d$rows), equals(100L))    
     
 })
 
