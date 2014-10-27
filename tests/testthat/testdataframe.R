@@ -112,11 +112,15 @@ test_that("Dataset Iris", {
     expect_is(d,"data.frame")
     expect_that(nrow(d), equals(3L))
     expect_that(sum(d$rows), equals(150L))
+    expect_that(sum(d$splits), equals(3L))
+    expect_that(sum(d$remainder), equals(150L))
     
     d <- x$partitions_regex('Iris-v.*')
     expect_is(d,"data.frame")
     expect_that(nrow(d), equals(2L))
-    expect_that(sum(d$rows), equals(100L))    
+    expect_that(sum(d$rows), equals(100L))  
+    expect_that(sum(d$splits), equals(2L))
+    expect_that(sum(d$remainder), equals(100L))
     
 })
 

@@ -58,25 +58,33 @@ sview_columns <- function(v, columns) {
   v 
 }
 
-#' Add partition filter
+#' Add partition filter by range
 #'
 #' @param v Scythica View
-#' @param partitions List of partition names
+#' @param from Starting partition
+#' @param to End partition
 #' @return view 
 #' @examples
-#'  v <- sview_partitions(v,c("2008-01-03"))
+#'  v <- sview_partitions_range(v,c("2008-01-01"),c('2008-01-10'))
 #' @export 
-sview_partitions <- function(v, partitions) {
-  parts <- (v$ds)$partitions()
-  for ( p in partitions) {
-    if (!(p %in% parts)) {
-      warning(paste(p,"not in sdataframe partitions - ignoring filter",sep=' '))
-      return(v)
-    }
-  }
-  v$partitions <- partitions
+sview_partitions_range <- function(v, from, to) {
+  v$partitions <- (v$ds)$partitions_range(from,to)
   v 
 }
+
+#' Add partition filter by regex
+#'
+#' @param v Scythica View
+#' @param exp Regular Expression
+#' @return view 
+#' @examples
+#'  v <- sview_partitions_regex(v,c("2008-01-0?"))
+#' @export 
+sview_partitions_regex <- function(v, from, to) {
+  v$partitions <- (v$ds)$partitions_regex(from,to)
+  v 
+}
+
 
 #' Filter based on condition
 #'
@@ -101,8 +109,8 @@ sview_filter <- function(v, variable, operation, value) {
 sview_rawrows <- function(v) {
   rows = 0;
 
-  for (p in v$partitions) {
-    rows <- rows + (v$ds)$partition_rows(p)
+  if (!is.null(v$partitions)) {
+    rows <- sum((v$partitions)$rows)
   }
   
   rows
@@ -114,7 +122,7 @@ sview_rawrows <- function(v) {
 #' @param v Scythica View
 #' @return v
 #' @examples
-#'  frow <- sview_executea_filter(views)
+#'  frow <- sview_execute_filter(views)
 #' @export 
 sview_execute_filter <- function(v) {
   rows = sview_rawrows(v)

@@ -230,7 +230,7 @@ int SDataframe::partitionRows(string pkey) {
 int SDataframe::partitionSplits(string pkey) {
   SdsPartitionCols partition = SdsPartitionCols(*this,pkey); 
 
-  int splits = partition.nrow() / rowsPerSplit_ +1;
+  int splits = (partition.nrow() -1 )/ rowsPerSplit_ +1;
 
   return splits;
 }
@@ -263,15 +263,21 @@ Rcpp::DataFrame SDataframe::partitions_range(string from, string to) {
   sort(partitions.begin(), partitions.end());
   
   int len = partitions.size();
-  std::vector<uint32_t> rows(len);
+  std::vector<int> rows(len);
+  std::vector<int> splits(len); 
+  std::vector<int> remainder(len); 
 
   for(int i=0; i< len; i++) {
     rows[i] = partitionRows(partitions[i]);
+    splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
+    remainder[i] = rows[i] % rowsPerSplit_;
   }
   
   Rcpp::DataFrame partition_info = 
       Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
-                              Rcpp::Named("rows")=rows);
+                              Rcpp::Named("rows")=rows,
+                              Rcpp::Named("splits")=splits,
+                              Rcpp::Named("remainder")=remainder);
  
   return partition_info;
 }
@@ -302,15 +308,21 @@ Rcpp::DataFrame SDataframe::partitions_regex(string exp) {
   sort(partitions.begin(), partitions.end());
   
   int len = partitions.size();
-  std::vector<uint32_t> rows(len);
+  std::vector<int> rows(len);
+  std::vector<int> splits(len); 
+  std::vector<int> remainder(len); 
 
   for(int i=0; i< len; i++) {
     rows[i] = partitionRows(partitions[i]);
+    splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
+    remainder[i] = rows[i] % rowsPerSplit_;
   }
   
   Rcpp::DataFrame partition_info = 
       Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
-                              Rcpp::Named("rows")=rows);
+                              Rcpp::Named("rows")=rows,
+                              Rcpp::Named("splits")=splits,
+                              Rcpp::Named("remainder")=remainder);
  
   return partition_info;
 }

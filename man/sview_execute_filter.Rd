@@ -15,6 +15,6 @@ v
 Create bitmap filters
 }
 \examples{
-frow <- sview_executea_filter(views)
+frow <- sview_execute_filter(views)
 }
 
