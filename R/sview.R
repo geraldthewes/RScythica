@@ -136,14 +136,17 @@ sview_execute_filter <- function(v) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   bm <- m$BitVector
   v$bitmap <- list()
-  for (p in v$partitions) {
-    splits <- (v$ds)$partition_splits(p)
+  for (i in 1:nrow(v$partitions)) {
+    splits <- (v$partitions)[i,"splits"]
+    p <- as.character((v$partition)[i,"partition"])
     for (s in 1:splits) {    
-      srows <-  if (s == splits) (v$ds)$partition_rows(p) %% rows_per_split else rows_per_split
+      srows <-  if (s == splits) (v$partitions)[i,"remainder"] else rows_per_split
       sindex <- sindex(srows)
       vfactory <- m$SIntVector
       bm.v <- new(vfactory)
-      a <- bm.v$op.gt((v$ds)$splitn(p,s,(v$filter)$var) ,sindex,(v$filter)$val)
+      a <- bm.v$op.gt((v$ds)$splitn(p,s,(v$filter)$var) ,
+                      sindex,
+                      (v$filter)$val)
       k <- sdataframe_key(p,s)
       v$bitmap[[k]] <- a
     }
