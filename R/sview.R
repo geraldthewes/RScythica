@@ -154,6 +154,27 @@ sview_execute_filter <- function(v) {
   v
 }
 
+#' Return number of rows in filter
+#'
+#' @param v Scythica View
+#' @return number of rows after filtering
+#' @examples
+#'  frow <- sview_rows(views)
+#' @export 
+sview_rows <- function(v) {
+  rows = 0;
+  
+  if (!is.null(v$bitmap)) {
+    m   <- Module("rscythica", PACKAGE="RScythica")
+    bm <- m$BitVector
+    for(b in v$bitmap) {
+      bv <- new(bm,b)
+      rows <- rows + bv$popcount()
+    }
+  }
+  
+  rows
+}
 
 #' Execute query
 #'
