@@ -9,7 +9,7 @@ sview_rows(v)
 \item{v}{Scythica View}
 }
 \value{
-number of raw rows before filtering
+number of rows after filtering
 }
 \description{
 Return number of rows in filter
