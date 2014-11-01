@@ -138,16 +138,15 @@ SEXP SNumericVector::select_op_gt(SEXP v, SEXP out, double value) {
 
 
 SEXP SNumericVector::collapse(SEXP src, SEXP lv) {
-  /*
     // May be able to speed this up using SSE if assumimg vector is mostly sparse
     BitVector  lv2 = BitVector(lv);
     unsigned int size = lv2.popcount();
       
-    Rcpp::IntegerVector  out(size);
+    Rcpp::NumericVector  out(size);
 
-    int *srcp = INTEGER(src);
+    double *srcp = REAL(src);
     uint8_t *lvp = (uint8_t *)RAW(lv);
-    int *outp = out.begin();
+    double *outp = out.begin();
 
     for(int i=0;i<size;srcp++) {
         if (*lvp++) {
@@ -156,7 +155,6 @@ SEXP SNumericVector::collapse(SEXP src, SEXP lv) {
         }
     }
     return out;
-    */
         return R_NilValue;
 } 
 
