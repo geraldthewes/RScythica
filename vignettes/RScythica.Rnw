@@ -70,6 +70,7 @@ ds$ncol()
 # Return the column names and types in the dataset
 ds$names()
 ds$col_types()
+ds$col_index('Distance')
 
 # List all the partitions in the dataset
 ds$partitions()

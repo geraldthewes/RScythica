@@ -39,3 +39,65 @@ op_gt.numeric <- function(v,value) {
   sindex <- sindex(length(v))
   b <- bm.v$op.gt(v, sindex, value)
 }
+
+#' Equal
+#'
+#' @param v vector
+#' @param value vlaue to compare
+#' @return index 
+#' @examples
+#'  index <- op_eq(ds$splitn("2001-01-01",1,'Distance'),1000)
+#' @export
+op_eq <- function(v,value) {
+  UseMethod("op_eq")
+}
+
+
+#' @export
+op_eq.integer <- function(v,value) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SIntVector
+  bm.v <- new(vfactory)
+  sindex <- sindex(length(v))
+  b <- bm.v$op.eq(v, sindex, value)
+}
+
+#' @export
+op_eq.numeric <- function(v,value) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SNumericVector
+  bm.v <- new(vfactory)
+  sindex <- sindex(length(v))
+  b <- bm.v$op.eq(v, sindex, value)
+}
+
+#' Less Than
+#'
+#' @param v vector
+#' @param value vlaue to compare
+#' @return index 
+#' @examples
+#'  index <- op_lt(ds$splitn("2001-01-01",1,'Distance'),1000)
+#' @export
+op_lt <- function(v,value) {
+  UseMethod("op_lt")
+}
+
+
+#' @export
+op_lt.integer <- function(v,value) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SIntVector
+  bm.v <- new(vfactory)
+  sindex <- sindex(length(v))
+  b <- bm.v$op.lt(v, sindex, value)
+}
+
+#' @export
+op_lt.numeric <- function(v,value) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SNumericVector
+  bm.v <- new(vfactory)
+  sindex <- sindex(length(v))
+  b <- bm.v$op.lt(v, sindex, value)
+}
