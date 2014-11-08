@@ -129,3 +129,32 @@ test_that("Test SIndex NOT", {
   expect_that(ov[13] > 0, is_true())
   
 })  
+
+
+test_that("Parse Filter", {
+  sdf <- open_sdataset("../extdata/airline.sds")
+  v <- sview(sdf)
+  filter <- sfilter(v,Distance > 1000)
+  p <- parse_filter(sdf,filter)
+  expect_that(class(p), equals('call'))
+  expect_that(as.character(p)[1], equals('>'))
+  expect_that(as.character(p)[2], equals('Distance'))
+  expect_that(as.character(p)[3], equals('1000')) 
+  
+
+  filter <- sfilter(v,Distance > 1000 &  20 < TaxiIn)
+  p <- parse_filter(sdf,filter)
+  expect_that(class(p), equals('call'))
+  expect_that(as.character(p)[1], equals('&'))
+  expect_that(as.character(p)[2], equals('Distance > 1000'))
+  expect_that(as.character(p)[3], equals('TaxiIn > 20')) 
+  
+  l <- 20
+  filter <- sfilter(v,(Distance > 1000) &  (l < TaxiIn))
+  p <- parse_filter(sdf,filter)
+  expect_that(class(p), equals('call'))
+  expect_that(as.character(p)[1], equals('&'))
+  expect_that(as.character(p)[2], equals('(Distance > 1000)'))
+  expect_that(as.character(p)[3], equals('(TaxiIn > 20)'))
+  
+})

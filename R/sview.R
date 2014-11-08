@@ -245,6 +245,7 @@ parse_filter_ <- function(ds, expr, env) {
     parsed <- switch(as.character(op),
                      '&'= parse_logical(ds,expr,env),
                      '|'= parse_logical(ds,expr,env),
+                     '('= parse_logical(ds,expr,env),
                      '>'= parse_operator(ds,expr,env),
                      '<'= parse_operator(ds,expr,env),
                      '=-'= parse_operator(ds,expr,env),
@@ -254,7 +255,7 @@ parse_filter_ <- function(ds, expr, env) {
   } else if (is.name(expr)) {
     #print(paste('name',expr,sep=':'))
     if (!(as.character(expr) %in% ds$names())) {
-      parsed <- interp(expr, .values=env)
+      parsed <- eval(expr, env)
     } 
   } else if (is.atomic(expr)) {
     ##print(paste('atomic',expr,sep=':'))
