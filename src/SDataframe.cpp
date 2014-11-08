@@ -405,6 +405,8 @@ RCPP_MODULE(rscythica) {
     .method("op.eq",&SIntVector::select_op_eq,"Equal to Value")
     .method("op.gt",&SIntVector::select_op_gt,"Greater to Value")
     .method("op.lt",&SIntVector::select_op_lt,"Less to Value")
+    .method("op.ge",&SIntVector::select_op_ge,"Greater or Equal to Value")
+    .method("op.le",&SIntVector::select_op_le,"Less or Equal to Value")
     .method("collapse", &SIntVector::collapse,"Return rows that match filter")
     ;
     
@@ -415,6 +417,8 @@ RCPP_MODULE(rscythica) {
     .method("op.eq",&SNumericVector::select_op_eq,"Equal to Value")
     .method("op.gt",&SNumericVector::select_op_gt,"Greater to Value")
     .method("op.lt",&SNumericVector::select_op_lt,"Less to Value")
+    .method("op.ge",&SNumericVector::select_op_ge,"Greater or Equal to Value")
+    .method("op.le",&SNumericVector::select_op_le,"Less or Equal to Value")
     .method("collapse", &SNumericVector::collapse,"Return rows that match filter")
     ;
     

@@ -28,7 +28,9 @@ namespace rscythica {
        SEXP  select_op_eq(SEXP v, SEXP out, int value);
        SEXP  select_op_lt(SEXP v, SEXP out, int value);
        SEXP  select_op_gt(SEXP v, SEXP out, int value);
-       
+       SEXP  select_op_ge(SEXP v, SEXP out, int value);
+       SEXP  select_op_le(SEXP v, SEXP out, int value);
+ 
        SEXP collapse(SEXP src, SEXP lv);
   };
 }
