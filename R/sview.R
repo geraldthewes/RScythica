@@ -222,3 +222,79 @@ sview_execute <- function(v) {
   }
   res
 }
+
+
+## Helper funtions for filters
+
+#' @export 
+sfilter <- function(.v, ...) {
+  .dos = lazyeval::lazy_dots(...)
+} 
+
+
+#' @export 
+parse_filter <- function(ds, condition) {
+  parse_filter_(ds, condition[[1]]$expr, condition[[1]]$env)
+}
+
+parse_filter_ <- function(ds, expr, env) {
+  parsed <- expr
+  if (is.call(expr)) {
+    op = expr[[1]]
+    #print(paste('call:op',op,sep='='))
+    parsed <- switch(as.character(op),
+                     '&'= parse_logical(ds,expr,env),
+                     '|'= parse_logical(ds,expr,env),
+                     '>'= parse_operator(ds,expr,env),
+                     '<'= parse_operator(ds,expr,env),
+                     '=-'= parse_operator(ds,expr,env),
+                     '<='= parse_operator(ds,expr,env),
+                     '>='= parse_operator(ds,expr,env),
+                     stop("Unsupported operator ", op, call. = FALSE))
+  } else if (is.name(expr)) {
+    #print(paste('name',expr,sep=':'))
+    if (!(as.character(expr) %in% ds$names())) {
+      parsed <- interp(expr, .values=env)
+    } 
+  } else if (is.atomic(expr)) {
+    ##print(paste('atomic',expr,sep=':'))
+  } else {
+    stop("Unexpected type ", typeof(expr), call. = FALSE)
+  }
+  parsed
+}
+
+parse_logical <- function(ds,expr,env) {
+  parsed <- expr
+  for(i in 2:length(expr)) {
+    #print(paste('call arguments',expr[[i]],typeof(expr[[i]]),class(expr[[i]]),sep=':'))
+    parsed[[i]] <- parse_filter_(ds,expr[[i]],env)
+  }
+  parsed
+}
+
+
+parse_operator <- function(ds,expr,env) {
+  parsed <- expr
+  if(length(expr) != 3) {
+    stop(expr[[1]], " requires two arguments ", expr, call. = FALSE)
+  }
+  left <- parse_filter_(ds,expr[[2]],env)
+  right <- parse_filter_(ds,expr[[3]],env)
+  
+  if (is.name(right)) {
+    parsed[[1]] <- switch(as.character(expr[[1]]),
+                          '>' = as.name('<'),
+                          '>=' = as.name('<='),
+                          '<' = as.name('>'),
+                          '<=' = as.name('>='),
+                          expr[[1]])
+    parsed[[2]] <- right
+    parsed[[3]] <- left
+  } else {
+    parsed[[2]] <- left
+    parsed[[3]] <- right
+  }
+  parsed
+}
+
