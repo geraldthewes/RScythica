@@ -233,28 +233,28 @@ sfilter <- function(.v, ...) {
 
 
 #' @export 
-parse_filter <- function(ds, condition) {
-  parse_filter_(ds, condition[[1]]$expr, condition[[1]]$env)
+parse_filter <- function(names, condition) {
+  parse_filter_(names, condition[[1]]$expr, condition[[1]]$env)
 }
 
-parse_filter_ <- function(ds, expr, env) {
+parse_filter_ <- function(names, expr, env) {
   parsed <- expr
   if (is.call(expr)) {
     op = expr[[1]]
     #print(paste('call:op',op,sep='='))
     parsed <- switch(as.character(op),
-                     '&'= parse_logical(ds,expr,env),
-                     '|'= parse_logical(ds,expr,env),
-                     '('= parse_logical(ds,expr,env),
-                     '>'= parse_operator(ds,expr,env),
-                     '<'= parse_operator(ds,expr,env),
-                     '=-'= parse_operator(ds,expr,env),
-                     '<='= parse_operator(ds,expr,env),
-                     '>='= parse_operator(ds,expr,env),
+                     '&'= parse_logical(names,expr,env),
+                     '|'= parse_logical(names,expr,env),
+                     '('= parse_logical(names,expr,env),
+                     '>'= parse_operator(names,expr,env),
+                     '<'= parse_operator(names,expr,env),
+                     '=-'= parse_operator(names,expr,env),
+                     '<='= parse_operator(names,expr,env),
+                     '>='= parse_operator(names,expr,env),
                      stop("Unsupported operator ", op, call. = FALSE))
   } else if (is.name(expr)) {
     #print(paste('name',expr,sep=':'))
-    if (!(as.character(expr) %in% ds$names())) {
+    if (!(as.character(expr) %in% names)) {
       parsed <- eval(expr, env)
     } 
   } else if (is.atomic(expr)) {
@@ -265,23 +265,31 @@ parse_filter_ <- function(ds, expr, env) {
   parsed
 }
 
-parse_logical <- function(ds,expr,env) {
+parse_logical <- function(names,expr,env) {
   parsed <- expr
   for(i in 2:length(expr)) {
     #print(paste('call arguments',expr[[i]],typeof(expr[[i]]),class(expr[[i]]),sep=':'))
-    parsed[[i]] <- parse_filter_(ds,expr[[i]],env)
+    parsed[[i]] <- parse_filter_(names,expr[[i]],env)
   }
+  
+  op <- as.character(expr[[1]])
+  
+  parsed[[1]] <- switch(op,
+                        '&' = as.name('op.and'),
+                        '|' = as.name('op.or'),
+                        op)  
+  
   parsed
 }
 
 
-parse_operator <- function(ds,expr,env) {
+parse_operator <- function(names,expr,env) {
   parsed <- expr
   if(length(expr) != 3) {
     stop(expr[[1]], " requires two arguments ", expr, call. = FALSE)
   }
-  left <- parse_filter_(ds,expr[[2]],env)
-  right <- parse_filter_(ds,expr[[3]],env)
+  left <- parse_filter_(names,expr[[2]],env)
+  right <- parse_filter_(names,expr[[3]],env)
   
   if (is.name(right)) {
     parsed[[1]] <- switch(as.character(expr[[1]]),
@@ -296,6 +304,59 @@ parse_operator <- function(ds,expr,env) {
     parsed[[2]] <- left
     parsed[[3]] <- right
   }
+  parsed[[1]] <- switch(as.character(parsed[[1]]),
+                        '=' = as.name('op_eq'),
+                        '>' = as.name('op_lt'),
+                        '>=' = as.name('op_le'),
+                        '<' = as.name('op_gt'),
+                        '<=' = as.name('op_ge'),
+                        parsed[[1]])
   parsed
 }
 
+
+#' @export 
+columns_from_filter<- function(expr, names) {  
+  if (is.call(expr)) {
+    for(i in 2:length(expr)) {
+       names <- columns_from_filter(expr[[i]], names)
+    }
+  } else if (is.name(expr)) {
+     if (!(as.character(expr) %in% names)) {
+        names <- c(names, as.character(expr)) 
+     }
+  } 
+  names
+}
+
+#' evaluate filter
+#'
+#' @param v Scythica View
+#' @return List of partion:splits -> index
+#' @examples
+#'  result <- eveluate_filter(v)
+#' @export 
+evaluate_filter <- function(v) {
+  # Parse filter
+  columns <- (v$ds)$names()
+  parsed <- parse_filter(columns, v$condition) 
+
+  # Extract the columns from the expression
+  cols <- unique(unlist(columns_from_filter(parsed,list())))
+  
+  
+  # iterate over all the partitions and slits
+  for (i in 1:nrow(v$partitions)) {
+    splits <- (v$partitions)[i,"splits"]
+    p <- as.character((v$partition)[i,"partition"])
+    for (s in 1:splits) {  
+      # Map environment
+      for (col in cols) {
+        vec <- (v$ds)$splitn(p,s,col)
+        assign(col, vec)
+      }
+      # Evaluate index
+      b <- eval(parsed)
+    }
+  }
+}
