@@ -16,7 +16,8 @@ Depends:
     iterators,
     foreach,
     methods,
-    lazyeval
+    lazyeval,
+    assertthat
 RcppModules: rscythica
 Suggests:
     testthat
