@@ -63,6 +63,19 @@ sview_columns <- function(v, columns) {
 #' Add partition filter by range
 #'
 #' @param v Scythica View
+#' @param partitions list
+#' @return view 
+#' @examples
+#'  v <- sview_partitions(v,c("2008-01-03"))
+#' @export 
+sview_partitions <- function(v, partitions) {
+  v$partitions <- partitions
+  v 
+}
+
+#' Add partition filter by range
+#'
+#' @param v Scythica View
 #' @param from Starting partition
 #' @param to End partition
 #' @return view 
@@ -91,12 +104,13 @@ sview_partitions_regex <- function(v, from, to) {
 #' Filter based on condition
 #'
 #' @param v Scythica View
-#' @return number of rows
+#' @param filter expressions
+#' @return view
 #' @examples
-#'  v <- sview_filter(v, "ArrTime", "eq", 24)
+#'  v <- sview_filter(v, Distance > 1000 & TaxiIn < 20)
 #' @export 
-sview_filter <- function(v, variable, operation, value) {
-   v$filter <- list(var=variable,op=operation,val=value)
+sview_filter <- function(v, ...) {
+   v$filter <- lazyeval::lazy_dots(...)
    v
 }
 
@@ -275,8 +289,8 @@ parse_logical <- function(names,expr,env) {
   op <- as.character(expr[[1]])
   
   parsed[[1]] <- switch(op,
-                        '&' = as.name('op.and'),
-                        '|' = as.name('op.or'),
+                        '&' = as.name('sindex_and'),
+                        '|' = as.name('sindex_or'),
                         op)  
   
   parsed

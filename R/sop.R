@@ -24,7 +24,7 @@ op_gt <- function(v,value, .index = NULL) {
 
 
 #' @export
-op_gt.integer <- function(v,value, .index) {
+op_gt.integer <- function(v,value, .index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SIntVector
   bm.v <- new(vfactory)
@@ -37,7 +37,7 @@ op_gt.integer <- function(v,value, .index) {
 }
 
 #' @export
-op_gt.numeric <- function(v,value,.index) {
+op_gt.numeric <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
   bm.v <- new(vfactory)
@@ -64,7 +64,7 @@ op_eq <- function(v,value,.index=NULL) {
 
 
 #' @export
-op_eq.integer <- function(v,value,.index) {
+op_eq.integer <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SIntVector
   bm.v <- new(vfactory)
@@ -77,7 +77,7 @@ op_eq.integer <- function(v,value,.index) {
 }
 
 #' @export
-op_eq.numeric <- function(v,value,.index) {
+op_eq.numeric <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
   bm.v <- new(vfactory)
@@ -104,7 +104,7 @@ op_lt <- function(v,value,.index=NULL) {
 
 
 #' @export
-op_lt.integer <- function(v,value,.index) {
+op_lt.integer <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SIntVector
   bm.v <- new(vfactory)
@@ -117,7 +117,7 @@ op_lt.integer <- function(v,value,.index) {
 }
 
 #' @export
-op_lt.numeric <- function(v,value, .index) {
+op_lt.numeric <- function(v,value, .index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
   bm.v <- new(vfactory)
@@ -144,7 +144,7 @@ op_ge <- function(v,value,.index=NULL) {
 
 
 #' @export
-op_ge.integer <- function(v,value,.index) {
+op_ge.integer <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SIntVector
   bm.v <- new(vfactory)
@@ -157,7 +157,7 @@ op_ge.integer <- function(v,value,.index) {
 }
 
 #' @export
-op_ge.numeric <- function(v,value,.index) {
+op_ge.numeric <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
   bm.v <- new(vfactory)
@@ -178,13 +178,13 @@ op_ge.numeric <- function(v,value,.index) {
 #' @examples
 #'  index <- op_le(ds$splitn("2001-01-01",1,'Distance'),1000)
 #' @export
-op_le <- function(v,value,.index) {
+op_le <- function(v,value,.index=NULL) {
   UseMethod("op_le")
 }
 
 
 #' @export
-op_le.integer <- function(v,value,index) {
+op_le.integer <- function(v,value,index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SIntVector
   bm.v <- new(vfactory)
@@ -197,7 +197,7 @@ op_le.integer <- function(v,value,index) {
 }
 
 #' @export
-op_le.numeric <- function(v,value,.index) {
+op_le.numeric <- function(v,value,.index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
   bm.v <- new(vfactory)
