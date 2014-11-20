@@ -124,3 +124,18 @@ sindex_not <- function(a) {
   index.a <- new(factory,a)
   index.out <- index.a$op.not() 
 }
+
+#' population count
+#'
+#' @param a - a is modified
+#' @return Not a
+#' @examples
+#'  a <- sindex(500)
+#'  n <- sindex_popcount(a)
+#' @export
+sindex_popcount <- function(a) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  factory <- m$BitVector
+  index.a <- new(factory,a)
+  index.out <- index.a$popcount() 
+}

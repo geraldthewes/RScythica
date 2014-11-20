@@ -141,33 +141,31 @@ sview_rawrows <- function(v) {
 #'  frow <- sview_execute_filter(views)
 #' @export 
 sview_execute_filter <- function(v) {
-  rows = sview_rawrows(v)
-
-  if (is.null(v$filter)) {
-    v$bitmap <- NULL
-    return(v)
-  }
-
-  rows_per_split <- (v$ds)$rows_per_split
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$BitVector
+  # Parse filter
+  columns <- (v$ds)$names()
+  parsed <- parse_filter(columns, v$filter) 
+  
+  # Extract the columns from the expression
+  cols <- unique(unlist(columns_from_filter(parsed,list())))
+  
+  
+  # iterate over all the partitions and slits
   v$bitmap <- list()
   rows <- 0
   for (i in 1:nrow(v$partitions)) {
     splits <- (v$partitions)[i,"splits"]
     p <- as.character((v$partition)[i,"partition"])
-    for (s in 1:splits) {    
-      srows <-  if (s == splits) (v$partitions)[i,"remainder"] else rows_per_split
-      sindex <- sindex(srows)
-      vfactory <- m$SIntVector
-      bm.v <- new(vfactory)
-      b <- bm.v$op.gt((v$ds)$splitn(p,s,(v$filter)$var) ,
-                      sindex,
-                      (v$filter)$val)
+    for (s in 1:splits) {  
+      # Map environment
+      for (col in cols) {
+        vec <- (v$ds)$splitn(p,s,col)
+        assign(col, vec)
+      }
+      # Evaluate index
+      b <- eval(parsed)
       k <- sdataframe_key(p,s)
       v$bitmap[[k]] <- b
-      bv <- new(bm,b)
-      v$klen[[k]] <-  bv$popcount()
+      v$klen[[k]] <-  sindex_popcount(b)
       rows <- rows + v$klen[[k]]
     }
   }
@@ -209,7 +207,7 @@ sview_execute <- function(v) {
       names(res)[1] = c
     } else {
       res <- cbind(res,col)   
-      names(res)[-1] = c
+      names(res)[ncol(res)] = c
     }
   }
   
@@ -228,8 +226,11 @@ sview_execute <- function(v) {
                       int32=integer.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
                       factor=NULL,
                       logical=NULL,
-                      NULL)      
-        res[[c]][rows:nrows] <- col 
+                      NULL)   
+        res[[c]][rows:nrows] <- col
+        #res.c <- res[[c]]
+        #res.c[rows:nrows] <- col 
+        #res[[c]] <- res.c
       }
       rows <- nrows + 1L
     }
@@ -343,34 +344,4 @@ columns_from_filter<- function(expr, names) {
   names
 }
 
-#' evaluate filter
-#'
-#' @param v Scythica View
-#' @return List of partion:splits -> index
-#' @examples
-#'  result <- eveluate_filter(v)
-#' @export 
-evaluate_filter <- function(v) {
-  # Parse filter
-  columns <- (v$ds)$names()
-  parsed <- parse_filter(columns, v$condition) 
 
-  # Extract the columns from the expression
-  cols <- unique(unlist(columns_from_filter(parsed,list())))
-  
-  
-  # iterate over all the partitions and slits
-  for (i in 1:nrow(v$partitions)) {
-    splits <- (v$partitions)[i,"splits"]
-    p <- as.character((v$partition)[i,"partition"])
-    for (s in 1:splits) {  
-      # Map environment
-      for (col in cols) {
-        vec <- (v$ds)$splitn(p,s,col)
-        assign(col, vec)
-      }
-      # Evaluate index
-      b <- eval(parsed)
-    }
-  }
-}
