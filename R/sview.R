@@ -21,6 +21,7 @@ v  = list(ds=ds,
           partitions=NULL, 
           columns=NULL,
           filter=NULL,
+          parsed=NULL,
           bitmap=NULL,
           klen=NULL,
           rows=0)
@@ -144,6 +145,7 @@ sview_execute_filter <- function(v) {
   # Parse filter
   columns <- (v$ds)$names()
   parsed <- parse_filter(columns, v$filter) 
+  v$parsed <- parsed
   
   # Extract the columns from the expression
   cols <- unique(unlist(columns_from_filter(parsed,list())))
@@ -321,10 +323,10 @@ parse_operator <- function(names,expr,env) {
   }
   parsed[[1]] <- switch(as.character(parsed[[1]]),
                         '=' = as.name('op_eq'),
-                        '>' = as.name('op_lt'),
-                        '>=' = as.name('op_le'),
-                        '<' = as.name('op_gt'),
-                        '<=' = as.name('op_ge'),
+                        '>' = as.name('op_gt'),
+                        '>=' = as.name('op_ge'),
+                        '<' = as.name('op_lt'),
+                        '<=' = as.name('op_le'),
                         parsed[[1]])
   parsed
 }
