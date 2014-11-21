@@ -236,6 +236,42 @@ int SDataframe::partitionSplits(string pkey) {
   return splits;
 }
 
+/*!
+ * Return partion information based on passed in list
+ * 
+ * \param l list of partitions
+ * \return dataframe with information on partitions (partition, split, rows)
+ */
+Rcpp::DataFrame SDataframe::partitions_list(Rcpp::CharacterVector l) {
+  std::string partition;
+  int n = l.size();
+  std::vector<string> partitions(n);
+
+  for(int i=0;i<n;i++) {
+    Rcpp::String p = l[i];
+    partitions.push_back(p);
+  }
+
+  
+  int len = partitions.size();
+  std::vector<int> rows(len);
+  std::vector<int> splits(len); 
+  std::vector<int> remainder(len); 
+
+  for(int i=0; i< len; i++) {
+    rows[i] = partitionRows(partitions[i]);
+    splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
+    remainder[i] = rows[i] % rowsPerSplit_;
+  }
+  
+  Rcpp::DataFrame partition_info = 
+      Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
+                              Rcpp::Named("rows")=rows,
+                              Rcpp::Named("splits")=splits,
+                              Rcpp::Named("remainder")=remainder);
+ 
+  return partition_info;    
+}
 
 /*!
  * Return partion information based on start and end filter
@@ -392,6 +428,7 @@ RCPP_MODULE(rscythica) {
     .method("partitions",&SDataframe::partitions,"Array of partitions")
     .method("partition_rows",&SDataframe::partitionRows,"Number of rows in a partition")
     .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
+    .method("partitions_list",&SDataframe::partitions_list,"Dataframe on partitions in a list")
     .method("partitions_range",&SDataframe::partitions_range,"Dataframe on partitions in a range")
     .method("partitions_regex",&SDataframe::partitions_regex,"Dataframe on partitions matching regex")
     .method("split",&SDataframe::split,"Access to a split by column index")

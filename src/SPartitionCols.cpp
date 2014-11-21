@@ -67,7 +67,7 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
   int retval = stat(dbf.c_str(),&filestatus);
  
   if (retval== -1) {
-    string msg = "Error looking up partitin db:" + dbf;
+    string msg = "Error looking up partition db:" + dbf;
     throw std::runtime_error(msg);
   }
  
