@@ -239,20 +239,12 @@ int SDataframe::partitionSplits(string pkey) {
 /*!
  * Return partion information based on passed in list
  * 
- * \param l list of partitions
+ * \param partitions list of partitions
  * \return dataframe with information on partitions (partition, split, rows)
  */
-Rcpp::DataFrame SDataframe::partitions_list(Rcpp::CharacterVector l) {
-  std::string partition;
-  int n = l.size();
-  std::vector<string> partitions(n);
-
-  for(int i=0;i<n;i++) {
-    Rcpp::String p = l[i];
-    partitions.push_back(p);
-  }
-
-  
+Rcpp::DataFrame SDataframe::partitions_list(std::vector< std::string > partitions) {
+  sort(partitions.begin(), partitions.end());
+   
   int len = partitions.size();
   std::vector<int> rows(len);
   std::vector<int> splits(len); 
@@ -297,26 +289,7 @@ Rcpp::DataFrame SDataframe::partitions_range(string from, string to) {
     }
     
   }
-  sort(partitions.begin(), partitions.end());
-  
-  int len = partitions.size();
-  std::vector<int> rows(len);
-  std::vector<int> splits(len); 
-  std::vector<int> remainder(len); 
-
-  for(int i=0; i< len; i++) {
-    rows[i] = partitionRows(partitions[i]);
-    splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
-    remainder[i] = rows[i] % rowsPerSplit_;
-  }
-  
-  Rcpp::DataFrame partition_info = 
-      Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
-                              Rcpp::Named("rows")=rows,
-                              Rcpp::Named("splits")=splits,
-                              Rcpp::Named("remainder")=remainder);
- 
-  return partition_info;
+  return partitions_list(partitions);
 }
 
 /*!
@@ -342,26 +315,8 @@ Rcpp::DataFrame SDataframe::partitions_regex(string exp) {
     }
     
   }
-  sort(partitions.begin(), partitions.end());
   
-  int len = partitions.size();
-  std::vector<int> rows(len);
-  std::vector<int> splits(len); 
-  std::vector<int> remainder(len); 
-
-  for(int i=0; i< len; i++) {
-    rows[i] = partitionRows(partitions[i]);
-    splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
-    remainder[i] = rows[i] % rowsPerSplit_;
-  }
-  
-  Rcpp::DataFrame partition_info = 
-      Rcpp::DataFrame::create(Rcpp::Named("partition")=partitions,
-                              Rcpp::Named("rows")=rows,
-                              Rcpp::Named("splits")=splits,
-                              Rcpp::Named("remainder")=remainder);
- 
-  return partition_info;
+  return partitions_list(partitions);
 }
 
 /*!

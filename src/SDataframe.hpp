@@ -65,7 +65,7 @@ public:
 
   int partitionRows(string pkey);
   int partitionSplits(string pkey);
-  Rcpp::DataFrame partitions_list(Rcpp::CharacterVector l);
+  Rcpp::DataFrame partitions_list(std::vector< std::string > partitions);
   Rcpp::DataFrame partitions_range(string from, string to);
   Rcpp::DataFrame partitions_regex(string exp);
 

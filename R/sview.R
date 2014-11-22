@@ -41,7 +41,7 @@ sview.print <- function(v) {
 }
 
 
-#' Add column filter
+#' Select columns
 #'
 #' @param v Scythica View
 #' @param columns List of column names
@@ -49,7 +49,7 @@ sview.print <- function(v) {
 #' @examples
 #'  view <- sview(views, c("DepTime","ArrTime"))
 #' @export 
-sview_columns <- function(v, columns) {
+sv_subset <- function(v, columns) {
   cols <- (v$ds)$names()
   for ( c in columns) {
     if (!(c %in% cols)) {
@@ -64,13 +64,13 @@ sview_columns <- function(v, columns) {
 #' Add partition filter by range
 #'
 #' @param v Scythica View
-#' @param partitions list
+#' @param l list of partitions
 #' @return view 
 #' @examples
 #'  v <- sview_partitions(v,c("2008-01-03"))
 #' @export 
-sview_partitions <- function(v, partitions) {
-  v$partitions <- partitions
+sv_partitions <- function(v, l) {
+  v$partitions <-  (v$ds)$partitions_list(l)
   v 
 }
 
@@ -83,7 +83,7 @@ sview_partitions <- function(v, partitions) {
 #' @examples
 #'  v <- sview_partitions_range(v,c("2008-01-01"),c('2008-01-10'))
 #' @export 
-sview_partitions_range <- function(v, from, to) {
+sv_partitions_range <- function(v, from, to) {
   v$partitions <- (v$ds)$partitions_range(from,to)
   v 
 }
@@ -96,7 +96,7 @@ sview_partitions_range <- function(v, from, to) {
 #' @examples
 #'  v <- sview_partitions_regex(v,c("2008-01-0?"))
 #' @export 
-sview_partitions_regex <- function(v, from, to) {
+sv_partitions_regex <- function(v, from, to) {
   v$partitions <- (v$ds)$partitions_regex(from,to)
   v 
 }
@@ -110,9 +110,9 @@ sview_partitions_regex <- function(v, from, to) {
 #' @examples
 #'  v <- sview_filter(v, Distance > 1000 & TaxiIn < 20)
 #' @export 
-sview_filter <- function(v, ...) {
+sv_filter <- function(v, ...) {
    v$filter <- lazyeval::lazy_dots(...)
-   v
+   v <- sv_execute_filter(v)
 }
 
 
@@ -123,7 +123,7 @@ sview_filter <- function(v, ...) {
 #' @examples
 #'  frow <- sview_rawrows(views)
 #' @export 
-sview_rawrows <- function(v) {
+sv_rawrows <- function(v) {
   rows = 0;
 
   if (!is.null(v$partitions)) {
@@ -141,7 +141,7 @@ sview_rawrows <- function(v) {
 #' @examples
 #'  frow <- sview_execute_filter(views)
 #' @export 
-sview_execute_filter <- function(v) {
+sv_execute_filter <- function(v) {
   # Parse filter
   columns <- (v$ds)$names()
   parsed <- parse_filter(columns, v$filter) 
@@ -182,7 +182,7 @@ sview_execute_filter <- function(v) {
 #' @examples
 #'  frow <- sview_rows(views)
 #' @export 
-sview_rows <- function(v) {
+sv_rows <- function(v) {
   v$rows
 }
 
@@ -193,7 +193,7 @@ sview_rows <- function(v) {
 #' @examples
 #'  view <- sview(views, "2008-01-03")
 #' @export 
-sview_execute <- function(v) {
+sv_execute <- function(v) {
   types <- (v$ds)$col_types()
   res <- NULL
   
@@ -242,14 +242,7 @@ sview_execute <- function(v) {
 
 
 ## Helper funtions for filters
-
-#' @export 
-sfilter <- function(.v, ...) {
-  .dos = lazyeval::lazy_dots(...)
-} 
-
-
-#' @export 
+ 
 parse_filter <- function(names, condition) {
   parse_filter_(names, condition[[1]]$expr, condition[[1]]$env)
 }
@@ -331,8 +324,7 @@ parse_operator <- function(names,expr,env) {
   parsed
 }
 
-
-#' @export 
+ 
 columns_from_filter<- function(expr, names) {  
   if (is.call(expr)) {
     for(i in 2:length(expr)) {
