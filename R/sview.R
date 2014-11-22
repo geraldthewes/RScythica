@@ -242,7 +242,8 @@ sv_execute <- function(v) {
 
 
 ## Helper funtions for filters
- 
+
+#' @export 
 parse_filter <- function(names, condition) {
   parse_filter_(names, condition[[1]]$expr, condition[[1]]$env)
 }

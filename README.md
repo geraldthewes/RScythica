@@ -88,3 +88,4 @@ Current limitations include:
     * logicals
     * Date
     * DateTime (POSIXct)
+* Currently Requires SSE 4.1 Support to accelerate vector operations.

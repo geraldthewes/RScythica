@@ -6,7 +6,7 @@ test_that("Test EQ", {
   sdf <- open_sdataset("../extdata/airline.sds")
   v <- sdf$split('2008-01-03',1,19)
   
-  expect_that(length(v), equals(500))  
+  expect_that(length(v), testthat::equals(500))  
   ob <- sindex(length(v))
   
   m   <- Module("rscythica", PACKAGE="RScythica")
@@ -14,13 +14,13 @@ test_that("Test EQ", {
   bm.v <- new(bm)
   
   y <- bm.v$op.eq(v,ob,515)
-  expect_that(length(y), equals(500))
+  expect_that(length(y), testthat::equals(500))
   
   out <- bm.v$collapse(v,y)
   ref <- v[v==515]
   
-  expect_that(length(out), equals(3))
-  expect_that(length(ref), equals(3))
+  expect_that(length(out), testthat::equals(3))
+  expect_that(length(ref), testthat::equals(3))
   
   
 })
@@ -29,7 +29,7 @@ test_that("Test GT", {
   sdf <- open_sdataset("../extdata/airline.sds")
   v <- sdf$split('2008-01-03',1,19)
   
-  expect_that(length(v), equals(500))  
+  expect_that(length(v), testthat::equals(500))  
   ob <- sindex(length(v))
   
   m   <- Module("rscythica", PACKAGE="RScythica")
@@ -37,13 +37,13 @@ test_that("Test GT", {
   bm.v <- new(bm)
   
   y <- bm.v$op.gt(v,ob,1000)
-  expect_that(length(y), equals(length(v)))
+  expect_that(length(y), testthat::equals(length(v)))
   
   out <- bm.v$collapse(v,y)
   ref <- v[v>1000]
   
-  expect_that(length(out), equals(107))
-  expect_that(length(ref), equals(107))
+  expect_that(length(out), testthat::equals(107))
+  expect_that(length(ref), testthat::equals(107))
   
   
 })
@@ -63,7 +63,7 @@ test_that("Test SIndex OR", {
   ov <- bv$op.or(c, b)
 
   bv.o <- new(bm,ov)
-  expect_that(bv.o$popcount(), equals(2))
+  expect_that(bv.o$popcount(), testthat::equals(2))
   expect_that(ov[23] > 0, is_true())
   expect_that(ov[13] > 0, is_true())
   
@@ -85,7 +85,7 @@ test_that("Test SIndex AND", {
   ov <- bv$op.and(c, b)
   
   bv.o <- new(bm,ov)
-  expect_that(bv.o$popcount(), equals(1))
+  expect_that(bv.o$popcount(), testthat::equals(1))
   expect_that(ov[23] > 0, is_true())
   expect_that(ov[13] > 0, is_false())
 })
@@ -105,7 +105,7 @@ test_that("Test SIndex ANDNOT", {
   ov <- bv$op.andnot(c, b)
   
   bv.o <- new(bm,ov)
-  expect_that(bv.o$popcount(), equals(1))
+  expect_that(bv.o$popcount(), testthat::equals(1))
   expect_that(ov[13] > 0, is_true())
   expect_that(ov[23] > 0, is_false())
 })
@@ -119,12 +119,12 @@ test_that("Test SIndex NOT", {
   bm <- m$BitVector
   bv <- new(bm,a)
   
-  expect_that(bv$popcount(), equals(1))
+  expect_that(bv$popcount(), testthat::equals(1))
   
   # bitwise not
   ov <- bv$op.not()
   
-  expect_that(bv$popcount(), equals(99))
+  expect_that(bv$popcount(), testthat::equals(99))
   expect_that(ov[23] == 0, is_true())
   expect_that(ov[13] > 0, is_true())
   
@@ -133,28 +133,36 @@ test_that("Test SIndex NOT", {
 
 test_that("Parse Filter", {
   sdf <- open_sdataset("../extdata/airline.sds")
+  
+  sfilter <- function(.v, ...) {
+    .dos = lazyeval::lazy_dots(...)
+  } 
+  
+  
   v <- sview(sdf)
   filter <- sfilter(v,Distance > 1000)
-  p <- parse_filter(sdf,filter)
-  expect_that(class(p), equals('call'))
-  expect_that(as.character(p)[1], equals('>'))
-  expect_that(as.character(p)[2], equals('Distance'))
-  expect_that(as.character(p)[3], equals('1000')) 
+  p <- parse_filter(sdf$names(),filter)
+  expect_that(class(p), testthat::equals('call'))
+  expect_that(as.character(p)[1], testthat::equals('op_gt'))
+  expect_that(as.character(p)[2], testthat::equals('Distance'))
+  expect_that(as.character(p)[3], testthat::equals('1000')) 
   
 
   filter <- sfilter(v,Distance > 1000 &  20 < TaxiIn)
-  p <- parse_filter(sdf,filter)
-  expect_that(class(p), equals('call'))
-  expect_that(as.character(p)[1], equals('&'))
-  expect_that(as.character(p)[2], equals('Distance > 1000'))
-  expect_that(as.character(p)[3], equals('TaxiIn > 20')) 
+  p <- parse_filter(sdf$names(),filter)
+  expect_that(class(p), testthat::equals('call'))
+  expect_that(as.character(p)[1], testthat::equals('sindex_and'))
+  expect_that(as.character(p)[2], testthat::equals('op_gt(Distance, 1000)'))
+  expect_that(as.character(p)[3], testthat::equals('op_gt(TaxiIn, 20)')) 
   
   l <- 20
   filter <- sfilter(v,(Distance > 1000) &  (l < TaxiIn))
-  p <- parse_filter(sdf,filter)
-  expect_that(class(p), equals('call'))
-  expect_that(as.character(p)[1], equals('&'))
-  expect_that(as.character(p)[2], equals('(Distance > 1000)'))
-  expect_that(as.character(p)[3], equals('(TaxiIn > 20)'))
+  p <- parse_filter(sdf$names(),filter)
+  expect_that(class(p), testthat::equals('call'))
+  expect_that(as.character(p)[1], testthat::equals('sindex_and'))
+  expect_that(as.character(p[[2]][[1]]), testthat::equals('('))
+  expect_that(as.character(p[[2]][[2]]), testthat::equals(c('op_gt','Distance', '1000')))
+  expect_that(as.character(p[[3]][[1]]), testthat::equals('('))
+  expect_that(as.character(p[[3]][[2]]), testthat::equals(c('op_gt','TaxiIn', '20')))
   
 })

@@ -17,6 +17,7 @@ Depends:
     foreach,
     methods,
     lazyeval,
+    magrittr,
     assertthat
 RcppModules: rscythica
 Suggests:
