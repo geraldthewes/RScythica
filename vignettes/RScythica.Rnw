@@ -1,5 +1,7 @@
 \documentclass{article}
 
+\usepackage[toc,page]{appendix}
+
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
@@ -112,50 +114,28 @@ s
 @
 
 
-
-\section{Filters}
-
-Filter operations allow you to select only some rows from a dataset.
+\subsection{Dplyr Style Pipeline}
 
 <<>>=
+# Create view / pipeline from a dataset
+v <- sview(ds)
 
-m   <- Module("rscythica", PACKAGE="RScythica")
-# Create an Integer Vector
-bm <- m$SIntVector
-bm.v <- new(bm)
+# Select partions
+v <- sv_partitions(v,c("2008-01-03"))
 
-v <- ds$split('2008-01-03',1,19)
+# Select subset of columns
+v <- sv_subset(v,c("Distance","AirTime","TaxiIn"))
 
-# Create Filter BitVector
-ob <- sindex(length(v))
+# Create a row filter
+l <- 5
+v <- sv_filter(v,Distance > 2000 & TaxiIn < l)
 
-# Apply == 515
-y <- bm.v$op.eq(v,ob,515)
-y
-
-# Apply > 1000 & < 1500
-a <- bm.v$op.gt(v,ob,1000)
-ob2 <- sindex(length(v))
-b <- bm.v$op.lt(v,ob2,1500)
-c <- sindex(length(v))
-bm <- m$BitVector
-bv <- new(bm,a)
-ov <- bv$op.and(c, b)
-res <-  bm.v$collapse(v,ov)
-res
-
-# Number of True 
-bm <- m$BitVector
-bv <- new(bm,y)
-bv$popcount()
-
-
-# Filter row using BitVector
-out <- bm.v$collapse(v,y)
-length(out)
-out
-
+# Execute pipeline
+ds2 <- sv_execute(v)
+ds2
 @
+
+\begin{appendices}
 
 \section{Scythica Dataset format}
 
@@ -193,5 +173,56 @@ Meta data for the partition is stored in a message pack file. Key attributes are
 
 Data is currently stored in the binary format (currently only tested on x86/64 and arm) in a method compatible with how R internally stores it's raw vectors of data. Data starts offset by 128 bytes to allow for mapping of R's header and R's 3.1 custom allocators.
 
+
+\section{Low Level Filter Methods}
+
+\subsection{Data Vectors}
+Filter operations allow you to select only some rows from a dataset.
+
+<<>>=
+
+m   <- Module("rscythica", PACKAGE="RScythica")
+# Create an Integer Vector
+bm <- m$SIntVector
+bm.v <- new(bm)
+
+v <- ds$split('2008-01-03',1,19)
+
+# Create Filter BitVector
+ob <- sindex(length(v))
+
+# Apply == 515
+y <- bm.v$op.eq(v,ob,515)
+y
+
+# Apply > 1000 & < 1500
+a <- bm.v$op.gt(v,ob,1000)
+ob2 <- sindex(length(v))
+b <- bm.v$op.lt(v,ob2,1500)
+c <- sindex(length(v))
+bm <- m$BitVector
+bv <- new(bm,a)
+ov <- bv$op.and(c, b)
+res <-  bm.v$collapse(v,ov)
+res
+@
+
+\subsection{Bitmap Indexes}
+
+<<>>=
+# Number of True 
+bm <- m$BitVector
+bv <- new(bm,y)
+bv$popcount()
+
+
+# Filter row using BitVector
+out <- bm.v$collapse(v,y)
+length(out)
+out
+
+@
+
+\end{appendices}
 
 \end{document}
