@@ -7,7 +7,13 @@ test_that("Dataframe Basics", {
     x <- new(sdf2,path="../extdata/airline.sds")
 
     expect_that(x$ncol(), testthat::equals(29))
-
+    expect_that(x$key_separator, testthat::equals("-"))
+    
+    expect_that(x$partitions_column_value('2001-08-03', 'Year'), testthat::equals('2001'))
+    expect_that(x$partitions_column_value('2001-08-03', 'Month'), testthat::equals('08'))
+    expect_that(x$partitions_column_value('2001-08-03', 'DayOfMonth'), testthat::equals('03'))
+    expect_that(x$partitions_column_value('2001-08-03', 'Day'), testthat::equals(''))
+    
     expect_that(x$names()[3], testthat::equals("DayOfMonth"))
     expect_that(x$names()[19], testthat::equals("Distance"))
     
@@ -30,7 +36,9 @@ test_that("Dataframe Basics", {
     expect_that(as.character(cattr[3]), testthat::equals("pkey0p2"))
     expect_that(names(ct)[3], testthat::equals("DayOfMonth"))   
     
-    
+    l <- x$col_levels("Dest")
+    expect_that(length(l), testthat::equals(62))
+    expect_that(as.character(l[1]), testthat::equals("TPA"))     
 
     # Test integer vectods
     v <- x$split('2008-01-03',1,19)

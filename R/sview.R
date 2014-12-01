@@ -143,6 +143,9 @@ sv_rawrows <- function(v) {
 #' @export 
 sv_execute_filter <- function(v) {
   # Parse filter
+  if (is.null((v$ds)$names())) {
+    stop("Applying filter on intialized view")
+  }
   columns <- (v$ds)$names()
   parsed <- parse_filter(columns, v$filter) 
   v$parsed <- parsed
@@ -197,10 +200,17 @@ sv_execute <- function(v) {
   types <- (v$ds)$col_types()
   res <- NULL
   
-  for (c in v$columns) {
+  if (is.null(v$columns)) {
+    columns <- (v$ds)$names()
+  } else {
+    columns <- v$columns()
+  }
+  
+  for (c in columns) {
     col <- switch(types[c],
              int32=integer(v$rows),
-             factor=factor(v$rows),
+             double=numeric(v$rows),
+             factor={ f<-integer(v$row); attr(f,'levels')<-(v$ds)$col_levels(c); class(f)<-'factor';f},
              logical=logical(v$rows),
              integer(v$rows))
    
@@ -217,22 +227,24 @@ sv_execute <- function(v) {
   #rows_per_split <- (v$ds)$rows_per_split
   m   <- Module("rscythica", PACKAGE="RScythica")
   integer.vec <- new(m$SIntVector)
+  numeric.vec <- new(m$SNumericVector)
+  factor.vec <- new(m$SFactorVector)
   for (i in 1:nrow(v$partitions)) {
     splits <- (v$partitions)[i,"splits"]
     p <- as.character((v$partition)[i,"partition"])
     for (s in 1:splits) {  
       k <- sdataframe_key(p,s)
       nrows  <- rows + v$klen[[k]] - 1L
-      for (c in v$columns) {
+      for (c in columns) {
         col <- switch(types[c],
                       int32=integer.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
-                      factor=NULL,
+                      numeric=numeric.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
+                      factor=factor.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
                       logical=NULL,
                       NULL)   
-        res[[c]][rows:nrows] <- col
-        #res.c <- res[[c]]
-        #res.c[rows:nrows] <- col 
-        #res[[c]] <- res.c
+        if (!is.null(col)) {
+          res[[c]][rows:nrows] <- col
+        }
       }
       rows <- nrows + 1L
     }

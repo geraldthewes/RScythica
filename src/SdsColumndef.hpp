@@ -17,6 +17,11 @@ Lesser General Public License for more details.
 
 using namespace std;
 
+namespace rscythica {
+const string PKEY = "pkey";
+const string PKEY_0PAD2 = "pkey0p2";
+}
+
 class SdsColumndef {
 private:
   string    colname_;
@@ -29,7 +34,12 @@ public:
   string colname();
   string coltype();
   string attributes();
+  
+  inline bool isKeyColumn() {
+     return (attributes_ == rscythica::PKEY)||(attributes_ == rscythica::PKEY_0PAD2);
+  }
 
 };
+
 
 #endif  // SDS_COLUMNDEF_H

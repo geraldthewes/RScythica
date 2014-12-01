@@ -27,8 +27,6 @@ using namespace Rcpp;
 const string DB_NROW = "nrow";
 
 const string DF_MP = "db.mp";
-const string DF_FACTORS_DIR = "/factors";
-
 
 
 /*
@@ -108,85 +106,39 @@ int64_t SdsPartitionCols::getRowFromMsgPack() {
 
 }
 
-/*! Get Array of character for a factor
- * \param columnName
- * \return Array of character vectors
- */
-std::vector<std::string> SdsPartitionCols::getFactorLevels(string columnName) {
-  // Not great - but for now the file is small
-  string dbf = schema_.path() + DF_FACTORS_DIR + DF_SEP + columnName;
 
-  // $$$ Fix to avoid resource leakage in case of pbs
-
-  struct stat filestatus;
-  int retval = stat(dbf.c_str(),&filestatus);
- 
-  if (retval== -1) {
-    string msg = "Error looking up factor:" + dbf;
-    throw std::runtime_error(msg);
-  }
- 
-  
-  //msgpack::sbuffer sbuf(filestatus.st_size);
-
-  msgpack::unpacker pac;
-  pac.reserve_buffer(filestatus.st_size);
-
-  ifstream in_file;
-  in_file.open(dbf.c_str(),ios::in);
-  if (!in_file) {
-    string msg = "Unable to open  File:" + dbf;
-    throw std::runtime_error(msg);
-  }
-
-  //in_file.read(sbuf.data(), filestatus.st_size);
-  in_file.read(pac.buffer(), filestatus.st_size);
-
-  in_file.close();
-  
-  pac.buffer_consumed(filestatus.st_size);
-
-  msgpack::unpacked msg;
-  //msgpack::unpack(&msg,sbuf.data(),sbuf.size());
-
-  pac.next(&msg);
-  msgpack::object obj = msg.get();
-
-  std::vector<std::string> array;
-  obj.convert(&array);
-
-  //Rcpp::CharacterVector v(array.begin(),array.end());
-
-  return array;
-
-}
 
 /*! Return R object for the given split
  * \param split split 1 based index
  * \param columnIndex 1 based column index
  * \return R Object at the specific indes
  */
-SEXP SdsPartitionCols::split(int split, 
-		       string columnType,
-		       string columnName) {
+SEXP SdsPartitionCols::split(int split, SdsColumndef column) {
+
+  if (column.isKeyColumn()) {
+    return keyColumn(split, column);
+  }
 
   // Compute split
   // format path
   // create column buffer
-  int totalSplits = nrow_ / schema_.rowsPerSplit();
-
-  int nrows = schema_.rowsPerSplit();
-  if (split == totalSplits) {
-    nrows = nrow_ % schema_.rowsPerSplit();
-  }
+  int nrows = schema_.rowsInSplit(nrow_,split);
+  //int totalSplits = nrow_ / schema_.rowsPerSplit();
+  
+  //int nrows = schema_.rowsPerSplit();
+  //if (split == totalSplits) {
+  //  nrows = nrow_ % schema_.rowsPerSplit();
+  //}
+  
 
   char buff[16];
   sprintf(buff,"-%08x.dat",split);
     
 
   string path = schema_.path() + DF_DATA_DIR + DF_SEP + pkey_ + DF_SEP
-    + columnName + string(buff);
+    + column.colname() + string(buff);
 
+  string columnType = column.coltype();
   if (columnType == rscythica::SDF_Integer32) {
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
       return colbuf.vectorSexp();      
@@ -210,7 +162,7 @@ SEXP SdsPartitionCols::split(int split,
       rscythica::SColBuffer colbuf(nrows,path, INTSXP,sizeof(int32_t));
       SEXP factors = PROTECT(colbuf.vectorSexp());
       Rcpp::RObject rfactor = factors;
-      std::vector<std::string> levels = getFactorLevels(columnName);
+      std::vector<std::string> levels = schema_.getFactorLevels(column.colname());
       // Change class
       rfactor.attr("levels") = Rcpp::wrap(levels);
       rfactor.attr("class") = "factor";
@@ -243,3 +195,14 @@ SEXP SdsPartitionCols::split(int split,
   return R_NilValue;
 }
 
+
+/*!
+ * Return column representing one of the partition keys
+ * \param split split number
+ * \param column Partition Column
+ * \return index of column one based, 0 if invalid name
+ */
+ 
+SEXP SdsPartitionCols::keyColumn(int split, SdsColumndef column) {
+  return R_NilValue;
+}

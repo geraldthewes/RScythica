@@ -69,7 +69,9 @@ open_sdataset <- function(path) {
 #' @export
 print.Rcpp_SDataframe <- function(x,...) {
 p <- "Scythica Dataframe:"
-p <- paste(p,sprintf("Partitions: %d",length(x$partitions())),sep='\n')
+p <- paste(p,
+           sprintf("Partitions: %d KeySeparator %s",length(x$partitions()),x$key_separator),
+           sep='\n')
 p <- paste(p,sprintf("Columns: %d",x$ncol()),sep='\n')
 p <- paste(p,paste(x$names(),collapse=' '),sep='\n')
 cat(p)

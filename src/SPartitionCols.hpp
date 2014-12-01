@@ -26,10 +26,7 @@ namespace rscythica {
     string        pkey_;
     int64_t       nrow_;
 
-    //int64_t       getRowFromLevelDB();
     int64_t       getRowFromMsgPack();
-
-    std::vector<std::string>  getFactorLevels(string columnName);
     
   public:
     SdsPartitionCols(SDataframe &schema, string pkey);
@@ -37,7 +34,8 @@ namespace rscythica {
 
     int64_t      nrow();
 
-    SEXP split(int split, string columnType, string columnName);
+    SEXP split(int split, SdsColumndef column);
+    SEXP keyColumn(int split, SdsColumndef column);
 
   };
 }

@@ -15,16 +15,20 @@ Lesser General Public License for more details.
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <boost/tokenizer.hpp>
 #include <regex>
 
 #include <yaml-cpp/yaml.h>
+
+#include <msgpack.hpp>
 
 #include "SDataframe.hpp"
 #include "SColBuffer.hpp"
 #include "SPartitionCols.hpp"
 #include "BitVector.hpp"
 #include "SIntVector.hpp"
-#include "SNumericvector.hpp"
+#include "SNumericVector.hpp"
+#include "SFactorVector.hpp"
 
 #include <Rinternals.h>
 
@@ -58,9 +62,17 @@ SDataframe::SDataframe(string path) : path_(path) {
   //YAML::Parser parser(fin);
   YAML::Node schema = YAML::LoadFile(schemafile);
   YAML::Node cols = schema["columns"];
-  YAML::Node keyspace = schema["keyspace"];
+  
+  // Keyspace attributes
+  const YAML::Node keyspace = schema["keyspace"];
   int ncols = schema["ncols"].as<int>();
   rowsPerSplit_ = keyspace["rows_per_split"].as<int>();
+  const YAML::Node sep = keyspace["key_separator"];
+  if (sep.IsDefined()) {
+    key_separator_ = sep.as<std::string>();
+  } else {
+    key_separator_ = DF_DEFAULT_KEY_SEP; 
+  } 
 
   // Now grab the columns
   columns_.resize(ncols);
@@ -82,16 +94,36 @@ SDataframe::SDataframe(string path) : path_(path) {
   }
   
   int offset = 0;
+  int keyOffset = 0;
   for(std::vector<SdsColumndef>::iterator it2 = columns_.begin(); 
       it2 != columns_.end(); 
       ++it2) {
-    colnameindex_[it2->colname()] = ++offset;
+    string colName = it2->colname();    
+    colnameindex_[colName] = ++offset;
+    if (it2->isKeyColumn())  {
+          keyindex_[colName] = ++keyOffset;
+          keyposition_[keyOffset] = offset;
+        }
   }
+  
 }
 
-
+/*!
+ * Return the number of rows per split.
+ * \return rows per split
+ */
+ 
 int SDataframe::rowsPerSplit() {
   return rowsPerSplit_;
+}
+
+/*!
+ * Return key partition separator
+ * \return separator character
+ */
+ 
+string SDataframe::keySeparator() {
+  return key_separator_;
 }
 
 /*!
@@ -142,6 +174,16 @@ std::vector<string> SDataframe::names() {
     return colnameindex_[name];
   }
   
+  /*!
+ * Return index of a key column
+ * \param name of column
+ * \return index of key column one based, 0 if invalid name
+ */
+ 
+  int SDataframe::keyIndex(std::string name) {
+    return keyindex_[name];
+  }
+  
 /*!
  * Return array of column type
  * \return column type
@@ -184,6 +226,59 @@ std::vector<string> SDataframe::names() {
     cattr.names() = cnames;
     return cattr;
   }
+  
+  /*! Get Array of character for a factor
+ * \param columnName
+ * \return Array of character vectors
+ */
+std::vector<std::string> SDataframe::getFactorLevels(string columnName) {
+  // Not great - but for now the file is small
+  string dbf = path() + DF_FACTORS_DIR + DF_SEP + columnName;
+
+  // $$$ Fix to avoid resource leakage in case of pbs
+
+  struct stat filestatus;
+  int retval = stat(dbf.c_str(),&filestatus);
+ 
+  if (retval== -1) {
+    string msg = "Error looking up factor:" + dbf;
+    throw std::runtime_error(msg);
+  }
+ 
+  
+  //msgpack::sbuffer sbuf(filestatus.st_size);
+
+  msgpack::unpacker pac;
+  pac.reserve_buffer(filestatus.st_size);
+
+  ifstream in_file;
+  in_file.open(dbf.c_str(),ios::in);
+  if (!in_file) {
+    string msg = "Unable to open  File:" + dbf;
+    throw std::runtime_error(msg);
+  }
+
+  //in_file.read(sbuf.data(), filestatus.st_size);
+  in_file.read(pac.buffer(), filestatus.st_size);
+
+  in_file.close();
+  
+  pac.buffer_consumed(filestatus.st_size);
+
+  msgpack::unpacked msg;
+  //msgpack::unpack(&msg,sbuf.data(),sbuf.size());
+
+  pac.next(&msg);
+  msgpack::object obj = msg.get();
+
+  std::vector<std::string> array;
+  obj.convert(&array);
+
+  //Rcpp::CharacterVector v(array.begin(),array.end());
+
+  return array;
+
+}
 
 /*!
  * Return list of partitions
@@ -292,6 +387,9 @@ Rcpp::DataFrame SDataframe::partitions_range(string from, string to) {
   return partitions_list(partitions);
 }
 
+
+  
+
 /*!
  * Return partion information based on regexfilter
  * 
@@ -319,6 +417,31 @@ Rcpp::DataFrame SDataframe::partitions_regex(string exp) {
   return partitions_list(partitions);
 }
 
+
+/*!
+ * Return a column value from a partition key
+ * 
+ * \param key partition key
+ * \param col column name
+ * \return Column value as a string
+ */
+ 
+string SDataframe::columnValueFromPartitionKey(string key, string col) {
+  int index = keyIndex(col);
+  if (index) {
+    boost::char_separator<char> sep(key_separator_.c_str());
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer tokens(key,sep);
+    int i = 1;
+    for(tokenizer::iterator tok_iter = tokens.begin();
+      tok_iter != tokens.end();
+      ++tok_iter,++i) {
+        if(i == index) return *tok_iter;
+      }
+  }
+  return "";
+}
+
 /*!
  * Return an R object for the split within a partition for a specific column
  * Object is freed once it's garbage collected by R.
@@ -339,10 +462,7 @@ SEXP SDataframe::split(string pkey, int split, int column) {
 
   if (column >= 0 && split >= 0  ) {
     
-    retval = partition.split(split,
-			     columns_[column].coltype(),
-			     columns_[column].colname());
-
+    retval = partition.split(split,columns_[column]);
   }
   
   return retval;
@@ -362,8 +482,9 @@ SEXP SDataframe::splitn(string pkey, int split, std::string col_name) {
     
   int colindex = colIndex(col_name);  
   
-  if (colindex > 0)  retval = this->split(pkey,split,colindex);
-  
+  if (colindex > 0)  {
+    retval = this->split(pkey,split,colindex);
+  }
   return retval;  
 }
 
@@ -374,18 +495,24 @@ RCPP_MODULE(rscythica) {
     .constructor<string>()
 
     .property("rows_per_split",&SDataframe::rowsPerSplit,"Max number of rows in a split")
+    .property("key_separator",&SDataframe::keySeparator,"Partition key separator")
 
     .method("ncol",&SDataframe::ncol,"Number of colums")
     .method("names",&SDataframe::names,"Column Names")
     .method("col_index",&SDataframe::colIndex,"Column Index")
+    .method("key_index",&SDataframe::keyIndex,"Key Column Index")
     .method("col_types",&SDataframe::colTypes,"Column Types")
     .method("col_attributes",&SDataframe::colAttributes,"Column Attributes")
+    .method("col_levels",&SDataframe::getFactorLevels,"Column Factor Levels")
+    
     .method("partitions",&SDataframe::partitions,"Array of partitions")
     .method("partition_rows",&SDataframe::partitionRows,"Number of rows in a partition")
     .method("partition_splits",&SDataframe::partitionSplits,"Number of splits in a partition")
     .method("partitions_list",&SDataframe::partitions_list,"Dataframe on partitions in a list")
     .method("partitions_range",&SDataframe::partitions_range,"Dataframe on partitions in a range")
     .method("partitions_regex",&SDataframe::partitions_regex,"Dataframe on partitions matching regex")
+    .method("partitions_column_value",&SDataframe::columnValueFromPartitionKey,"Return column value for a parition key")
+    
     .method("split",&SDataframe::split,"Access to a split by column index")
     .method("splitn",&SDataframe::splitn,"Access to a split by column name")
     ;
@@ -413,6 +540,19 @@ RCPP_MODULE(rscythica) {
     .method("op.le",&SNumericVector::select_op_le,"Less or Equal to Value")
     .method("collapse", &SNumericVector::collapse,"Return rows that match filter")
     ;
+    
+  class_<SFactorVector>("SFactorVector")
+
+    .constructor()
+    
+    .method("op.eq",&SFactorVector::select_op_eq,"Equal to Value")
+    .method("op.gt",&SFactorVector::select_op_gt,"Greater to Value")
+    .method("op.lt",&SFactorVector::select_op_lt,"Less to Value")
+    .method("op.ge",&SFactorVector::select_op_ge,"Greater or Equal to Value")
+    .method("op.le",&SFactorVector::select_op_le,"Less or Equal to Value")
+    .method("collapse", &SFactorVector::collapse,"Return rows that match filter")
+    ;
+        
     
   class_<BitVector>("BitVector")
 
