@@ -123,12 +123,6 @@ SEXP SdsPartitionCols::split(int split, SdsColumndef column) {
   // format path
   // create column buffer
   int nrows = schema_.rowsInSplit(nrow_,split);
-  //int totalSplits = nrow_ / schema_.rowsPerSplit();
-  
-  //int nrows = schema_.rowsPerSplit();
-  //if (split == totalSplits) {
-  //  nrows = nrow_ % schema_.rowsPerSplit();
-  //}
   
 
   char buff[16];
@@ -204,5 +198,16 @@ SEXP SdsPartitionCols::split(int split, SdsColumndef column) {
  */
  
 SEXP SdsPartitionCols::keyColumn(int split, SdsColumndef column) {
+  int nrows = schema_.rowsInSplit(nrow_,split);
+
+  string value = schema_.columnValueFromPartitionKey(pkey_, column.colname());
+
+  string columnType = column.coltype();
+  if (columnType == rscythica::SDF_Integer32) {
+      int ivalue = std::stoi(value);
+      IntegerVector vec(nrows,ivalue);
+      return wrap(vec);      
+  }
+
   return R_NilValue;
 }

@@ -203,7 +203,7 @@ sv_execute <- function(v) {
   if (is.null(v$columns)) {
     columns <- (v$ds)$names()
   } else {
-    columns <- v$columns()
+    columns <- v$columns
   }
   
   for (c in columns) {

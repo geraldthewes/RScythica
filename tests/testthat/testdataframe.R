@@ -40,7 +40,7 @@ test_that("Dataframe Basics", {
     expect_that(length(l), testthat::equals(62))
     expect_that(as.character(l[1]), testthat::equals("TPA"))     
 
-    # Test integer vectods
+    # Test integer vectors
     v <- x$split('2008-01-03',1,19)
 
     expect_that(length(v), testthat::equals(500))
@@ -74,7 +74,21 @@ test_that("Dataframe Basics", {
     expect_that(v[5], testthat::equals(32))
     expect_true(is.na(v[6]))
     
+    # Test Partition Columns
+    v <- x$splitn('2008-01-03',1,'Year')
+    expect_that(length(v), testthat::equals(500))
+    expect_that(sum(v), testthat::equals(1004000))
+    expect_that(v[100], testthat::equals(2008))
 
+    v <- x$splitn('2008-01-03',1,'Month')
+    expect_that(length(v), testthat::equals(500))
+    expect_that(sum(v), testthat::equals(500))
+    expect_that(v[100], testthat::equals(1))
+    
+    v <- x$splitn('2008-01-03',1,'DayOfMonth')
+    expect_that(length(v), testthat::equals(500))
+    expect_that(sum(v), testthat::equals(1500))
+    expect_that(v[100], testthat::equals(3))
 })
 
 test_that("Dataframe From Split", {
@@ -83,9 +97,9 @@ test_that("Dataframe From Split", {
   df <- as_data_frame_split(sdf,'2008-01-03')
   expect_that(nrow(df), testthat::equals(500))
 # not every column is supported today
-  expect_that(ncol(df), testthat::equals(22))   
-  expect_that(names(df)[13], testthat::equals('TaxiIn'))
-  expect_that(df[23,13], testthat::equals(2))   
+  expect_that(ncol(df), testthat::equals(25))   
+  expect_that(names(df)[16], testthat::equals('TaxiIn'))
+  expect_that(df[23,16], testthat::equals(2))   
   expect_that(df[23,"TaxiIn"], testthat::equals(2))   
 })
 
