@@ -17,6 +17,7 @@ Lesser General Public License for more details.
 #include "SFactorVector.hpp"
 #include "BitVector.hpp"
 
+#include "R.h"
 #include "RInternals.h"
 
 using namespace Rcpp;
@@ -241,6 +242,9 @@ SEXP SFactorVector::collapse(SEXP src, SEXP lv) {
           i++;
         }
     }
+    out.attr("levels") = Rf_getAttrib(src, R_LevelsSymbol);
+    out.attr("class") = "factor";
+
     return out;
 } 
 

@@ -130,6 +130,22 @@ test_that("Test SIndex NOT", {
   
 })  
 
+test_that("Test Factors", {
+  sdf <- open_sdataset("../extdata/airline.sds")
+  v <- sdf$splitn('2008-01-03',1,'Dest')
+  
+  expect_that(length(v), testthat::equals(500))  
+
+  y <- op_eq(v,'SJC')  
+  
+  expect_that(length(y), testthat::equals(500))
+  expect_that(sindex_popcount(y), testthat::equals(23))
+  
+  out <- collapse(v,y)
+  
+  expect_that(length(out), testthat::equals(23))
+  expect_that(class(out), testthat::equals('factor'))
+})
 
 test_that("Parse Filter", {
   sdf <- open_sdataset("../extdata/airline.sds")

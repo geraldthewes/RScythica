@@ -49,6 +49,19 @@ op_gt.numeric <- function(v,value,.index=NULL) {
   b <- bm.v$op.gt(v, .index, value)
 }
 
+#' @export
+op_gt.factor <- function(v,value,.index=NULL) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
+  bm.v <- new(vfactory)
+  if (is.null(.index)) {
+    .index <- sindex(length(v))
+  } else {
+    assert_that (length(v) == length(.index))
+  }
+  b <- bm.v$op.gt(v, .index, value)
+}
+
 #' Equal
 #'
 #' @param v vector
@@ -89,6 +102,23 @@ op_eq.numeric <- function(v,value,.index=NULL) {
   b <- bm.v$op.eq(v, .index, value)
 }
 
+#' @export
+op_eq.factor <- function(v,value,.index=NULL) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
+  bm.v <- new(vfactory)
+    
+  if (is.null(.index)) {
+    .index <- sindex(length(v))
+  } else {
+    assert_that (length(v) == length(.index))
+  }
+  
+  offset <- match(value, levels(v))
+  
+  b <- bm.v$op.eq(v, .index, offset)
+}
+
 #' Less Than
 #'
 #' @param v vector
@@ -120,6 +150,19 @@ op_lt.integer <- function(v,value,.index=NULL) {
 op_lt.numeric <- function(v,value, .index=NULL) {
   m   <- Module("rscythica", PACKAGE="RScythica")
   vfactory <- m$SNumericVector
+  bm.v <- new(vfactory)
+  if (is.null(.index)) {
+    .index <- sindex(length(v))
+  } else {
+    assert_that (length(v) == length(.index))
+  }
+  b <- bm.v$op.lt(v, .index, value)
+}
+
+#' @export
+op_lt.factor <- function(v,value, .index=NULL) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
   bm.v <- new(vfactory)
   if (is.null(.index)) {
     .index <- sindex(length(v))
@@ -169,6 +212,21 @@ op_ge.numeric <- function(v,value,.index=NULL) {
   b <- bm.v$op.ge(v, .index, value)
 }
 
+#' @export
+op_ge.factor <- function(v,value,.index=NULL) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
+  bm.v <- new(vfactory)
+  if (is.null(.index)) {
+    .index <- sindex(length(v))
+  } else {
+    assert_that (length(v) == length(.index))
+  }
+  b <- bm.v$op.ge(v, .index, value)
+}
+
+
+
 #' Less Than or Equal
 #'
 #' @param v vector
@@ -209,4 +267,61 @@ op_le.numeric <- function(v,value,.index=NULL) {
   b <- bm.v$op.le(v, .index, value)
 }
 
+#' @export
+op_le.factor <- function(v,value,.index=NULL) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
+  bm.v <- new(vfactory)
+  if (is.null(.index)) {
+    .index <- sindex(length(v))
+  } else {
+    assert_that (length(v) == length(.index))
+  }
+  b <- bm.v$op.le(v, .index, value)
+}
 
+#' Less Than or Equal
+#'
+#' @param v vector
+#' @param index Filter Index
+#' @return Vector where index is True 
+#' @examples
+#'  index <- collapse(NIL,NIL)
+#' @export
+collapse <- function(v, index) {
+  UseMethod("collapse")
+}
+
+
+#' @export
+collapse.integer <- function(v,index) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SIntVector
+  bm.v <- new(vfactory)
+
+  assert_that (length(v) == length(index))
+
+  bm.v$collapse(v, index)
+}
+
+#' @export
+collapse.numeric <- function(v,index) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SNumericVector
+  bm.v <- new(vfactory)
+  
+  assert_that (length(v) == length(index))
+  
+  bm.v$collapse(v, index)
+}
+
+#' @export
+collapse.factor <- function(v,index) {
+  m   <- Module("rscythica", PACKAGE="RScythica")
+  vfactory <- m$SFactorVector
+  bm.v <- new(vfactory)
+  
+  assert_that (length(v) == length(index))
+  
+  bm.v$collapse(v, index)
+}

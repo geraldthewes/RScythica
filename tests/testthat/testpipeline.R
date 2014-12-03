@@ -54,3 +54,18 @@ test_that("Test Basic Pipeline - 2 ", {
   
 })
 
+test_that("Test All Columns ", {
+  sdf <- open_sdataset("../extdata/airline.sds")
+  
+  v <- sview(sdf)
+  v <- sv_partitions(v,c("2008-01-03"))
+  
+  v <- sv_filter(v,Distance > 2000)
+  
+  ds2 <- sv_execute(v)
+  
+  expect_that(nrow(ds2), testthat::equals(19))  
+  expect_that(ncol(ds2), testthat::equals(29)) 
+  
+})
+
