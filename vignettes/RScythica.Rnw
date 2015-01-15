@@ -193,9 +193,8 @@ Filter operations allow you to select only some rows from a dataset.
 
 <<>>=
 
-m   <- Module("rscythica", PACKAGE="RScythica")
 # Create an Integer Vector
-bm <- m$SIntVector
+bm <- s.factory$m$SIntVector
 bm.v <- new(bm)
 
 v <- ds$split('2008-01-03',1,19)

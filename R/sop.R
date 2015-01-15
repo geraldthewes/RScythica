@@ -25,9 +25,7 @@ op_gt <- function(v,value, .index = NULL) {
 
 #' @export
 op_gt.integer <- function(v,value, .index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -38,9 +36,7 @@ op_gt.integer <- function(v,value, .index=NULL) {
 
 #' @export
 op_gt.numeric <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -51,9 +47,7 @@ op_gt.numeric <- function(v,value,.index=NULL) {
 
 #' @export
 op_gt.factor <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SFactorVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -78,9 +72,7 @@ op_eq <- function(v,value,.index=NULL) {
 
 #' @export
 op_eq.integer <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -91,9 +83,7 @@ op_eq.integer <- function(v,value,.index=NULL) {
 
 #' @export
 op_eq.numeric <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -104,9 +94,7 @@ op_eq.numeric <- function(v,value,.index=NULL) {
 
 #' @export
 op_eq.factor <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SFactorVector)
     
   if (is.null(.index)) {
     .index <- sindex(length(v))
@@ -135,9 +123,7 @@ op_lt <- function(v,value,.index=NULL) {
 
 #' @export
 op_lt.integer <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -148,9 +134,7 @@ op_lt.integer <- function(v,value,.index=NULL) {
 
 #' @export
 op_lt.numeric <- function(v,value, .index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -161,9 +145,7 @@ op_lt.numeric <- function(v,value, .index=NULL) {
 
 #' @export
 op_lt.factor <- function(v,value, .index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SFactorVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -188,9 +170,7 @@ op_ge <- function(v,value,.index=NULL) {
 
 #' @export
 op_ge.integer <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -201,9 +181,7 @@ op_ge.integer <- function(v,value,.index=NULL) {
 
 #' @export
 op_ge.numeric <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -214,9 +192,7 @@ op_ge.numeric <- function(v,value,.index=NULL) {
 
 #' @export
 op_ge.factor <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SFactorVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -243,9 +219,7 @@ op_le <- function(v,value,.index=NULL) {
 
 #' @export
 op_le.integer <- function(v,value,index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -256,9 +230,7 @@ op_le.integer <- function(v,value,index=NULL) {
 
 #' @export
 op_le.numeric <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -269,9 +241,7 @@ op_le.numeric <- function(v,value,.index=NULL) {
 
 #' @export
 op_le.factor <- function(v,value,.index=NULL) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SfactorVector)
   if (is.null(.index)) {
     .index <- sindex(length(v))
   } else {
@@ -295,9 +265,7 @@ collapse <- function(v, index) {
 
 #' @export
 collapse.integer <- function(v,index) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SIntVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SIntVector)
 
   assert_that (length(v) == length(index))
 
@@ -306,9 +274,7 @@ collapse.integer <- function(v,index) {
 
 #' @export
 collapse.numeric <- function(v,index) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SNumericVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SNumericVector)
   
   assert_that (length(v) == length(index))
   
@@ -317,9 +283,7 @@ collapse.numeric <- function(v,index) {
 
 #' @export
 collapse.factor <- function(v,index) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  vfactory <- m$SFactorVector
-  bm.v <- new(vfactory)
+  bm.v <- new(s.factory$m$SFactorVector)
   
   assert_that (length(v) == length(index))
   

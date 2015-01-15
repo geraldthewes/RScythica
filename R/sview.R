@@ -225,10 +225,9 @@ sv_execute <- function(v) {
   
   rows = 1L;
   #rows_per_split <- (v$ds)$rows_per_split
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  integer.vec <- new(m$SIntVector)
-  numeric.vec <- new(m$SNumericVector)
-  factor.vec <- new(m$SFactorVector)
+  integer.vec <- new(s.factory$m$SIntVector)
+  numeric.vec <- new(s.factory$m$SNumericVector)
+  factor.vec <- new(s.factory$m$SFactorVector)
   for (i in 1:nrow(v$partitions)) {
     splits <- (v$partitions)[i,"splits"]
     p <- as.character((v$partition)[i,"partition"])

@@ -9,8 +9,7 @@ test_that("Test EQ", {
   expect_that(length(v), testthat::equals(500))  
   ob <- sindex(length(v))
   
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$SIntVector
+  bm <- s.factory$m$SIntVector
   bm.v <- new(bm)
   
   y <- bm.v$op.eq(v,ob,515)
@@ -32,8 +31,7 @@ test_that("Test GT", {
   expect_that(length(v), testthat::equals(500))  
   ob <- sindex(length(v))
   
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$SIntVector
+  bm <- s.factory$m$SIntVector
   bm.v <- new(bm)
   
   y <- bm.v$op.gt(v,ob,1000)
@@ -56,9 +54,7 @@ test_that("Test SIndex OR", {
   b[13] = as.raw(0xff)
   c <- sindex(100)
   
-  
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$BitVector
+  bm <- s.factory$m$BitVector
   bv <- new(bm,a)
   ov <- bv$op.or(c, b)
 
@@ -78,9 +74,7 @@ test_that("Test SIndex AND", {
   b[23] = as.raw(0xff)
   c <- sindex(100)
   
-  
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$BitVector
+  bm <- s.factory$m$BitVector
   bv <- new(bm,a)
   ov <- bv$op.and(c, b)
   
@@ -98,9 +92,8 @@ test_that("Test SIndex ANDNOT", {
   b[23] = as.raw(0xff)
   c <- sindex(100)
   
-  
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$BitVector
+
+  bm <- s.factory$m$BitVector
   bv <- new(bm,a)
   ov <- bv$op.andnot(c, b)
   
@@ -114,9 +107,7 @@ test_that("Test SIndex NOT", {
   a <- sindex(100)
   a[23] = as.raw(0xff)
   
-  
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  bm <- m$BitVector
+  bm <- s.factory$m$BitVector
   bv <- new(bm,a)
   
   expect_that(bv$popcount(), testthat::equals(1))

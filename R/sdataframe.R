@@ -8,7 +8,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 
-
+s.factory <- new.env(parent = emptyenv())
+s.factory$m   <- Module("rscythica", PACKAGE="RScythica")
 
 #' Create an initial configuration file 
 #'
@@ -57,8 +58,7 @@ makeconfig <- function(ofile,df,rows.per.split=1000000,is.na='NA') {
 #' }
 #' @export
 open_sdataset <- function(path) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  sdf <- m$SDataframe
+  sdf <- s.factory$m$SDataframe
   sds <- new(sdf,path=path)
 }
 
@@ -70,7 +70,10 @@ open_sdataset <- function(path) {
 print.Rcpp_SDataframe <- function(x,...) {
 p <- "Scythica Dataframe:"
 p <- paste(p,
-           sprintf("Partitions: %d KeySeparator %s",length(x$partitions()),x$key_separator),
+           sprintf("Partitions: %d KeySeparator %s Rows Per Split: %d",
+                   length(x$partitions()),
+                   x$key_separator,
+                   x$rows_per_split),
            sep='\n')
 p <- paste(p,sprintf("Columns: %d",x$ncol()),sep='\n')
 p <- paste(p,paste(x$names(),collapse=' '),sep='\n')

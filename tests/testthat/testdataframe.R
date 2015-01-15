@@ -2,9 +2,7 @@ context("Scythica Dataframe")
 
 test_that("Dataframe Basics", {
     
-    scy <- Module("rscythica", PACKAGE="RScythica")
-    sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="../extdata/airline.sds")
+    x <- open_sdataset("../extdata/airline.sds")
 
     expect_that(x$ncol(), testthat::equals(29))
     expect_that(x$key_separator, testthat::equals("-"))
@@ -105,9 +103,7 @@ test_that("Dataframe From Split", {
 
 test_that("Dataset Iris", {
     
-    scy <- Module("rscythica", PACKAGE="RScythica")
-    sdf2 <- scy$SDataframe
-    x <- new(sdf2,path="../extdata/iris.sds")
+    x <- open_sdataset("../extdata/iris.sds")
 
     expect_that(x$ncol(), testthat::equals(5))
 
@@ -147,10 +143,7 @@ test_that("Dataset Iris", {
 })
 
 test_that("Dataset Boston", {
-  
-  scy <- Module("rscythica", PACKAGE="RScythica")
-  sdf2 <- scy$SDataframe
-  x <- new(sdf2,path="../extdata/boston.sds")
+  x <- open_sdataset("../extdata/boston.sds")
   
   expect_that(x$ncol(), testthat::equals(4))
   
@@ -171,10 +164,7 @@ test_that("Dataset Boston", {
 })
 
 test_that("Dataset Noaa", {
-  
-  scy <- Module("rscythica", PACKAGE="RScythica")
-  sdf2 <- scy$SDataframe
-  noaa <- new(sdf2,path="../extdata/noaa.sds")
+  noaa <- open_sdataset("../extdata/noaa.sds")
   
   expect_that(noaa$ncol(), testthat::equals(10))
   
@@ -215,10 +205,7 @@ test_that("Dataframe Iterator", {
 
 
 test_that("Dataframe R functions", {
-  
-  scy <- Module("rscythica", PACKAGE="RScythica")
-  sdf2 <- scy$SDataframe
-  x <- new(sdf2,path="../extdata/airline.sds")
+  x <- open_sdataset("../extdata/airline.sds")
   
   v <- x["2008-01-03:1","AirTime"]
   

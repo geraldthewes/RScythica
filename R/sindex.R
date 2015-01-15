@@ -48,10 +48,8 @@ sindex <- function(size) {
 #'  c <- sindex_and(a,b)
 #' @export
 sindex_and <- function(left, right, .index=NULL) {
-  assert_that (length(left) == length(right))
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  factory <- m$BitVector
-  index.left <- new(factory,left)
+  #assert_that (length(left) == length(right))
+  index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
     .index <- sindex(length(left))
   } else {
@@ -75,9 +73,8 @@ sindex_and <- function(left, right, .index=NULL) {
 #' @export
 sindex_or <- function(left, right, .index=NULL) {
   assert_that (length(left) == length(right))
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  factory <- m$BitVector
-  index.left <- new(factory,left)
+
+  index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
     .index <- sindex(length(left))
   } else {
@@ -99,9 +96,8 @@ sindex_or <- function(left, right, .index=NULL) {
 #' @export
 sindex_andnot <- function(left, right, .index=NULL) {
   assert_that (length(left) == length(right))
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  factory <- m$BitVector
-  index.left <- new(factory,left)
+
+  index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
     .index <- sindex(length(left))
   } else {
@@ -119,9 +115,7 @@ sindex_andnot <- function(left, right, .index=NULL) {
 #'  b <- sindex_not(a)
 #' @export
 sindex_not <- function(a) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  factory <- m$BitVector
-  index.a <- new(factory,a)
+  index.a <- new(s.factory$m$BitVector,a)
   index.out <- index.a$op.not() 
 }
 
@@ -134,8 +128,6 @@ sindex_not <- function(a) {
 #'  n <- sindex_popcount(a)
 #' @export
 sindex_popcount <- function(a) {
-  m   <- Module("rscythica", PACKAGE="RScythica")
-  factory <- m$BitVector
-  index.a <- new(factory,a)
+  index.a <- new(s.factory$m$BitVector,a)
   index.out <- index.a$popcount() 
 }
