@@ -48,10 +48,11 @@ sindex <- function(size) {
 #'  c <- sindex_and(a,b)
 #' @export
 sindex_and <- function(left, right, .index=NULL) {
-  #assert_that (length(left) == length(right))
+  assert_that (length(left) == length(right))
   index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
-    .index <- sindex(length(left))
+    #.index <- sindex(length(left))
+    .index <- left
   } else {
     assert_that (length(left) == length(.index))
   }
@@ -76,7 +77,8 @@ sindex_or <- function(left, right, .index=NULL) {
 
   index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
-    .index <- sindex(length(left))
+    #.index <- sindex(length(left))
+    .index <- left
   } else {
     assert_that (length(left) == length(.index))
   }
@@ -99,7 +101,8 @@ sindex_andnot <- function(left, right, .index=NULL) {
 
   index.left <- new(s.factory$m$BitVector,left)
   if (is.null(.index)) {
-    .index <- sindex(length(left))
+    #.index <- sindex(length(left))
+    .index <- left
   } else {
     assert_that (length(left) == length(.index))
   }
