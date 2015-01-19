@@ -17,7 +17,7 @@ Lesser General Public License for more details.
 #include "SNumericVector.hpp"
 #include "BitVector.hpp"
 
-#include "RInternals.h"
+#include "Rinternals.h"
 
 using namespace Rcpp;
 using namespace rscythica;
@@ -46,9 +46,10 @@ SEXP SNumericVector::select_op_eq(SEXP v, SEXP out, double value) {
     for(int w=0;w<waves;w++, vptr64d += 2) {
       // Load vector 2 doubles      
       __m128d v2 = _mm_load_pd(vptr64d);
-      __m128d o2 = _mm_cmpeq_pd(v2, value2);
+      __m128i o2 = (__m128i)_mm_cmpeq_pd(v2, value2);
       
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,0);
+      
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,1);   
     }
     
@@ -83,7 +84,7 @@ SEXP SNumericVector::select_op_lt(SEXP v, SEXP out, double value) {
     for(int w=0;w<waves;w++, vptr64d += 2) {
       // Load vector 2 doubles      
       __m128d v2 = _mm_load_pd(vptr64d);
-      __m128d o2 = _mm_cmplt_pd(v2, value2);
+      __m128i o2 = (__m128i)_mm_cmplt_pd(v2, value2);
       
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,0);
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,1);   
@@ -120,7 +121,7 @@ SEXP SNumericVector::select_op_gt(SEXP v, SEXP out, double value) {
     for(int w=0;w<waves;w++, vptr64d += 2) {
       // Load vector 2 doubles      
       __m128d v2 = _mm_load_pd(vptr64d);
-      __m128d o2 = _mm_cmpgt_pd(v2, value2);
+      __m128i o2 = (__m128i)_mm_cmpgt_pd(v2, value2);
       
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,0);
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,1);   
@@ -157,8 +158,8 @@ SEXP SNumericVector::select_op_le(SEXP v, SEXP out, double value) {
     for(int w=0;w<waves;w++, vptr64d += 2) {
       // Load vector 2 doubles      
       __m128d v2 = _mm_load_pd(vptr64d);
-      __m128d a2 = _mm_cmpeq_pd(v2, value2);
-      __m128i b2 = _mm_cmplt_pd(v2, value2);
+      __m128i a2 = (__m128i)_mm_cmpeq_pd(v2, value2);
+      __m128i b2 = (__m128i)_mm_cmplt_pd(v2, value2);
       __m128i o2 = _mm_or_si128(a2,b2);
       
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,0);
@@ -196,8 +197,8 @@ SEXP SNumericVector::select_op_ge(SEXP v, SEXP out, double value) {
     for(int w=0;w<waves;w++, vptr64d += 2) {
       // Load vector 2 doubles      
       __m128d v2 = _mm_load_pd(vptr64d);
-      __m128d a2 = _mm_cmpeq_pd(v2, value2);
-      __m128i b2 = _mm_cmpgt_pd(v2, value2);
+      __m128i a2 = (__m128i)_mm_cmpeq_pd(v2, value2);
+      __m128i b2 = (__m128i)_mm_cmpgt_pd(v2, value2);
       __m128i o2 = _mm_or_si128(a2,b2);
       
       *vout8++ = (uint8_t)_mm_extract_epi64(o2,0);

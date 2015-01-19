@@ -29,8 +29,13 @@ Common
 
 RScythica depends on the [scythica](http://github.com/geraldthewes/scythica) utilities to create the S datasets, and the utilities  need to be available in the executable search path.
 
-Linux
------
+Linux (Ubuntu)
+---------------
+
+sudo apt-get install libyaml-cpp-dev
+sudo apt-get install libmsgpack-dev
+
+
 
 Mac OS X
 --------
@@ -47,6 +52,13 @@ The following packages are required
 `brew install yaml-cpp`
 
 `brew install msgpack`
+
+Install
+-------
+
+library(devtools)
+devtools::install_github("geraldthewes/RScythica")
+
 
 Test Data
 =========

@@ -17,7 +17,7 @@ Lesser General Public License for more details.
 #include "SIntVector.hpp"
 #include "BitVector.hpp"
 
-#include "RInternals.h"
+#include "Rinternals.h"
 
 using namespace Rcpp;
 using namespace rscythica;
