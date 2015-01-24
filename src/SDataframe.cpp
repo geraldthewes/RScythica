@@ -16,7 +16,13 @@ Lesser General Public License for more details.
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/tokenizer.hpp>
+#ifdef __GNUG__
+/* Seems like gcc regex has issues */
+#include <boost/regex.hpp>
+using namespace boost;
+#else
 #include <regex>
+#endif
 
 #include <yaml-cpp/yaml.h>
 
@@ -35,6 +41,7 @@ Lesser General Public License for more details.
 using namespace Rcpp;
 using namespace boost::filesystem;
 using namespace rscythica;
+
 
 
 
@@ -339,13 +346,15 @@ int SDataframe::partitionSplits(string pkey) {
  */
 Rcpp::DataFrame SDataframe::partitions_list(std::vector< std::string > partitions) {
   sort(partitions.begin(), partitions.end());
-   
+    
   int len = partitions.size();
+  //std::cout << len;
   std::vector<int> rows(len);
   std::vector<int> splits(len); 
   std::vector<int> remainder(len); 
 
   for(int i=0; i< len; i++) {
+    //std::cout << partitions[i];
     rows[i] = partitionRows(partitions[i]);
     splits[i] = (rows[i]-1)/rowsPerSplit_ + 1;
     remainder[i] = rows[i] % rowsPerSplit_;
@@ -398,22 +407,25 @@ Rcpp::DataFrame SDataframe::partitions_range(string from, string to) {
  */
 
 Rcpp::DataFrame SDataframe::partitions_regex(string exp) {
-  std::string partition;
+  
   std::vector<string> partitions;
 
   boost::filesystem::path p (path_ + rscythica::DF_DATA_DIR);
 
-  std::regex filter(exp);
+  regex filter(exp);
+  //std::cout << exp;
   for(directory_iterator it = directory_iterator(p);
       it != directory_iterator();
       ++it) {
-    partition = (*it).path().filename().string();
-    if (std::regex_search(partition,filter)) {
-      partitions.push_back((*it).path().filename().string());
+    std::string partition = (*it).path().filename().string();
+
+    if (regex_search(partition,filter)) {
+      //std::cout << partition;
+      partitions.push_back(partition);
     }
     
   }
-  
+
   return partitions_list(partitions);
 }
 

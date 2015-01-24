@@ -22,6 +22,18 @@ sindex <- function(size) {
   si
 }
 
+#' Create an sindex BitVector
+#'
+#' @param sindex
+#' @return BitVector for the index
+#' @examples
+#'  index <- sindex(500)
+#'  v <- sindex_bitvector(index)
+#' @export
+sindex_bitvector <- function(index) {
+  new(s.factory$m$BitVector,index)
+}
+
 # Assign Value
 #
 # @param size of index
