@@ -194,8 +194,7 @@ Filter operations allow you to select only some rows from a dataset.
 <<>>=
 
 # Create an Integer Vector
-bm <- s.factory$m$SIntVector
-bm.v <- new(bm)
+bm.v <- smake_vector('integer')
 
 v <- ds$split('2008-01-03',1,19)
 
@@ -211,8 +210,7 @@ a <- bm.v$op.gt(v,ob,1000)
 ob2 <- sindex(length(v))
 b <- bm.v$op.lt(v,ob2,1500)
 c <- sindex(length(v))
-bm <- m$BitVector
-bv <- new(bm,a)
+bv <- sindex_bitvector(a)
 ov <- bv$op.and(c, b)
 res <-  bm.v$collapse(v,ov)
 res
@@ -222,8 +220,7 @@ res
 
 <<>>=
 # Number of True 
-bm <- m$BitVector
-bv <- new(bm,y)
+bv <- sindex_bitvector(y)
 bv$popcount()
 
 
