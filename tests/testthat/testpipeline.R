@@ -13,7 +13,7 @@ test_that("Test Basic Pipeline", {
   v <- sv_subset(v,columns)
   v <- sv_filter(v,Distance > 2000 & TaxiIn < l)
 
-  ds2 <- sv_execute(v)
+  ds2 <- sv_collect(v)
   
   expect_that(nrow(ds2), testthat::equals(10))  
   expect_that(sv_rows(v), testthat::equals(10))  
@@ -39,7 +39,7 @@ test_that("Test Basic Pipeline - 2 ", {
   v <- sv_subset(v,columns)
   v <- sv_filter(v,l > TaxiIn  & 2000 < Distance)
   
-  ds2 <- sv_execute(v)
+  ds2 <- sv_collect(v)
   
   expect_that(nrow(ds2), testthat::equals(10))  
   expect_that(sv_rows(v), testthat::equals(10))  
@@ -62,7 +62,7 @@ test_that("Test All Columns ", {
   
   v <- sv_filter(v,Distance > 2000)
   
-  ds2 <- sv_execute(v)
+  ds2 <- sv_collect(v)
   
   expect_that(nrow(ds2), testthat::equals(19))  
   expect_that(ncol(ds2), testthat::equals(29)) 

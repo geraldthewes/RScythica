@@ -189,14 +189,14 @@ sv_rows <- function(v) {
   v$rows
 }
 
-#' Execute query
+#' Collect query
 #'
 #' @param v Scythica View
 #' @return materialized dataframe
 #' @examples
 #'  view <- sview(views, "2008-01-03")
 #' @export 
-sv_execute <- function(v) {
+sv_collect <- function(v) {
   types <- (v$ds)$col_types()
   res <- NULL
   

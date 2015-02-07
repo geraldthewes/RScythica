@@ -130,8 +130,8 @@ v <- sv_subset(v,c("Distance","AirTime","TaxiIn"))
 l <- 5
 v <- sv_filter(v,Distance > 2000 & TaxiIn < l)
 
-# Execute pipeline
-ds2 <- sv_execute(v)
+# Collect results
+ds2 <- sv_collect(v)
 ds2
 @
 
@@ -142,7 +142,7 @@ ds2 <- sview(ds) %>%
        sv_partitions(c("2008-01-03")) %>% 
        sv_subset(c('Distance','AirTime','TaxiIn')) %>% 
        sv_filter(Distance > 2000 & TaxiIn < l) %>% 
-       sv_execute()
+       sv_collect()
 ds2
 @
 
