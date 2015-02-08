@@ -79,14 +79,14 @@ sv_partitions <- function(v, l) {
 #' Add partition filter by range
 #'
 #' @param v Scythica View
-#' @param from Starting partition
-#' @param to End partition
+#' @param start Starting partition
+#' @param end End partition
 #' @return view 
 #' @examples
 #'  v <- sview_partitions_range(v,c("2008-01-01"),c('2008-01-10'))
 #' @export 
-sv_partitions_range <- function(v, from, to) {
-  v$partitions <- (v$ds)$partitions_range(from,to)
+sv_partitions_range <- function(v, start, end) {
+  v$partitions <- (v$ds)$partitions_range(start,end)
   v 
 }
 

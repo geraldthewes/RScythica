@@ -10,7 +10,7 @@ test_that("Test Basic Pipeline", {
   v <- sview(sdf)
   v <- sv_partitions(v,c("2008-01-03"))
 
-  v <- sv_subset(v,columns)
+  v <- sv_subset(v,Distance, TaxiIn)
   v <- sv_filter(v,Distance > 2000 & TaxiIn < l)
 
   ds2 <- sv_collect(v)
@@ -36,7 +36,7 @@ test_that("Test Basic Pipeline - 2 ", {
   v <- sview(sdf)
   v <- sv_partitions(v,c("2008-01-03"))
   
-  v <- sv_subset(v,columns)
+  v <- sv_subset(v,Distance, TaxiIn)
   v <- sv_filter(v,l > TaxiIn  & 2000 < Distance)
   
   ds2 <- sv_collect(v)
