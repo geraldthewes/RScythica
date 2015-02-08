@@ -47,18 +47,20 @@ sview.print <- function(v) {
 #' @param columns List of column names
 #' @return view 
 #' @examples
-#'  view <- sview(views, c("DepTime","ArrTime"))
+#'  view <- sview(views, DepTime, ArrTime)
 #' @export 
-sv_subset <- function(v, columns) {
-  cols <- (v$ds)$names()
-  for ( c in columns) {
-    if (!(c %in% cols)) {
-      warning(paste(c,"not in sdataframe columns - ignoring filter",sep=' '))
-      return(v)
-    }
-  }
-  v$columns <- columns
-  v 
+sv_subset <- function(.v, ...) {
+  sv_subset_(.v, .dots = lazyeval::lazy_dots(...))
+}
+
+#' @rdname sv_subset
+#' @export 
+sv_subset_ <- function(.v, ..., .dots) {
+  dots <- lazyeval::all_dots(.dots, ..., all_named = TRUE)
+  cols <- (.v$ds)$names()
+  vars <- select_vars_(cols, dots)
+  .v$columns <- vars
+  .v 
 }
 
 #' Add partition filter by range
