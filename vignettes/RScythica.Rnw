@@ -121,17 +121,17 @@ s
 v <- sview(ds)
 
 # Select partions
-v <- sv_partitions(v,"2008-01-03")
+v <- partitions(v,"2008-01-03")
 
 # Select subset of columns
-v <- sv_subset(v,Distance,AirTime,TaxiIn)
+v <- select(v,Distance,AirTime,TaxiIn)
 
 # Create a row filter
 l <- 5
-v <- sv_filter(v,Distance > 2000 & TaxiIn < l)
+v <- filter(v,Distance > 2000 & TaxiIn < l)
 
 # Collect results
-ds2 <- sv_collect(v)
+ds2 <- collect(v)
 ds2
 @
 
@@ -139,10 +139,10 @@ Or even simpler:
 
 <<>>=
 ds2 <- sview(ds) %>% 
-       sv_partitions("2008-01-03") %>% 
-       sv_subset(Distance,AirTime,TaxiIn) %>% 
-       sv_filter(Distance > 2000 & TaxiIn < l) %>% 
-       sv_collect()
+       partitions("2008-01-03") %>% 
+       select(Distance,AirTime,TaxiIn) %>% 
+       filter(Distance > 2000 & TaxiIn < l) %>% 
+       collect()
 ds2
 @
 

@@ -258,13 +258,13 @@ op_le.factor <- function(v,value,.index=NULL) {
 #' @examples
 #'  index <- collapse(NIL,NIL)
 #' @export
-collapse <- function(v, index) {
-  UseMethod("collapse")
+op_collapse <- function(v, index) {
+  UseMethod("op_collapse")
 }
 
 
 #' @export
-collapse.integer <- function(v,index) {
+op_collapse.integer <- function(v,index) {
   bm.v <- new(s.factory$m$SIntVector)
 
   assert_that (length(v) == length(index))
@@ -273,7 +273,7 @@ collapse.integer <- function(v,index) {
 }
 
 #' @export
-collapse.numeric <- function(v,index) {
+op_collapse.numeric <- function(v,index) {
   bm.v <- new(s.factory$m$SNumericVector)
   
   assert_that (length(v) == length(index))
@@ -282,7 +282,7 @@ collapse.numeric <- function(v,index) {
 }
 
 #' @export
-collapse.factor <- function(v,index) {
+op_collapse.factor <- function(v,index) {
   bm.v <- new(s.factory$m$SFactorVector)
   
   assert_that (length(v) == length(index))

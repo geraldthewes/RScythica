@@ -36,26 +36,22 @@ v
 #' @examples
 #'  print(view)
 #' @export 
-sview.print <- function(v) {
-  print(ds)
+print.sview <- function(.v) {
+  print(.v$ds)
+  print(.v$partitions)
+  print(.v$filter)
 }
 
 
 #' Select columns
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @param columns List of column names
 #' @return view 
 #' @examples
-#'  view <- sview(views, DepTime, ArrTime)
+#'  view <- select(views, DepTime,ArrTime)
 #' @export 
-sv_subset <- function(.v, ...) {
-  sv_subset_(.v, .dots = lazyeval::lazy_dots(...))
-}
-
-#' @rdname sv_subset
-#' @export 
-sv_subset_ <- function(.v, ..., .dots) {
+select_.sview <- function(.v, ..., .dots) {
   dots <- lazyeval::all_dots(.dots, ..., all_named = TRUE)
   cols <- (.v$ds)$names()
   vars <- select_vars_(cols, dots)
@@ -65,130 +61,122 @@ sv_subset_ <- function(.v, ..., .dots) {
 
 #' Add partition filter by range
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @param l list of partitions
 #' @return view 
 #' @examples
 #'  v <- sview_partitions(v,c("2008-01-03"))
 #' @export 
-sv_partitions <- function(v, l) {
-  v$partitions <-  (v$ds)$partitions_list(l)
-  v 
+partitions <- function(.v, l) {
+  .v$partitions <-  (.v$ds)$partitions_list(l)
+  .v 
 }
 
 #' Add partition filter by range
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @param start Starting partition
 #' @param end End partition
 #' @return view 
 #' @examples
 #'  v <- sview_partitions_range(v,c("2008-01-01"),c('2008-01-10'))
 #' @export 
-sv_partitions_range <- function(v, start, end) {
-  v$partitions <- (v$ds)$partitions_range(start,end)
-  v 
+partitions_range <- function(.v, start, end) {
+  .v$partitions <- (.v$ds)$partitions_range(start,end)
+  .v 
 }
 
 #' Add partition filter by regex
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @param exp Regular Expression
 #' @return view 
 #' @examples
 #'  v <- sview_partitions_regex(v,c("2008-01-0?"))
 #' @export 
-sv_partitions_regex <- function(v, from, to) {
-  v$partitions <- (v$ds)$partitions_regex(from,to)
-  v 
-}
-
-
-#' Filter based on condition
-#'
-#' @param v Scythica View
-#' @param filter expressions
-#' @return view
-#' @examples
-#'  v <- sview_filter(v, Distance > 1000 & TaxiIn < 20)
-#' @export 
-sv_filter <- function(v, ...) {
-   v$filter <- lazyeval::lazy_dots(...)
-   v <- sv_execute_filter(v)
+partitions_regex <- function(.v, from, to) {
+  .v$partitions <- (.v$ds)$partitions_regex(from,to)
+  .v 
 }
 
 
 #' Return number of raw rows in filter
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @return number of raw rows before filtering
 #' @examples
 #'  frow <- sview_rawrows(views)
 #' @export 
-sv_rawrows <- function(v) {
+rawrows <- function(.v) {
   rows = 0;
 
-  if (!is.null(v$partitions)) {
-    rows <- sum((v$partitions)$rows)
+  if (!is.null(.v$partitions)) {
+    rows <- sum((.v$partitions)$rows)
   }
   
   rows
 }
 
 
-#' Create bitmap filters
+#' Apply filter
 #'
 #' @param v Scythica View
-#' @return v
+#' @param filter expressions
+#' @return view
 #' @examples
-#'  frow <- sview_execute_filter(views)
+#'  v <- filter(v, Distance > 1000 & TaxiIn < 20)
 #' @export 
-sv_execute_filter <- function(v) {
+filter_.sview <- function(.v,..., .dots) {
+  dots <- lazyeval::all_dots(.dots, ...)
+  env <- lazyeval::common_env(.dots)
+  
+  .v$filter <- dots
+  
   # Parse filter
-  if (is.null((v$ds)$names())) {
+  if (is.null((.v$ds)$names())) {
     stop("Applying filter on intialized view")
   }
-  columns <- (v$ds)$names()
-  parsed <- parse_filter(columns, v$filter) 
-  v$parsed <- parsed
+  columns <- (.v$ds)$names()
+  parsed <- parse_filter(columns, .v$filter) 
+  .v$parsed <- parsed
   
   # Extract the columns from the expression
   cols <- unique(unlist(columns_from_filter(parsed,list())))
   
   
   # iterate over all the partitions and slits
-  v$bitmap <- list()
+  .v$bitmap <- list()
   rows <- 0
-  for (i in 1:nrow(v$partitions)) {
-    splits <- (v$partitions)[i,"splits"]
-    p <- as.character((v$partition)[i,"partition"])
+  for (i in 1:nrow(.v$partitions)) {
+    splits <- (.v$partitions)[i,"splits"]
+    p <- as.character((.v$partition)[i,"partition"])
     for (s in 1:splits) {  
       # Map environment
       for (col in cols) {
-        vec <- (v$ds)$splitn(p,s,col)
+        vec <- (.v$ds)$splitn(p,s,col)
         assign(col, vec)
       }
       # Evaluate index
       b <- eval(parsed)
       k <- sdataframe_key(p,s)
-      v$bitmap[[k]] <- b
-      v$klen[[k]] <-  sindex_popcount(b)
-      rows <- rows + v$klen[[k]]
+      .v$bitmap[[k]] <- b
+      .v$klen[[k]] <-  sindex_popcount(b)
+      rows <- rows + .v$klen[[k]]
     }
   }
-  v$rows <- rows
-  v
+  .v$rows <- rows
+  .v
 }
 
 #' Return number of rows in filter
 #'
-#' @param v Scythica View
+#' @param .v Scythica View
 #' @return number of rows after filtering
 #' @examples
 #'  frow <- sview_rows(views)
 #' @export 
-sv_rows <- function(v) {
-  v$rows
+sv_nrow <- function(.v) {
+  .v$rows
 }
 
 #' Collect query
@@ -198,7 +186,7 @@ sv_rows <- function(v) {
 #' @examples
 #'  view <- sview(views, "2008-01-03")
 #' @export 
-sv_collect <- function(v) {
+collect.sview <- function(v) {
   types <- (v$ds)$col_types()
   res <- NULL
   

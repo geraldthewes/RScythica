@@ -133,7 +133,7 @@ test_that("Test Factors", {
   expect_that(length(y), testthat::equals(500))
   expect_that(sindex_popcount(y), testthat::equals(23))
   
-  out <- collapse(v,y)
+  out <- op_collapse(v,y)
   
   expect_that(length(out), testthat::equals(23))
   expect_that(class(out), testthat::equals('factor'))
