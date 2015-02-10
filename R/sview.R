@@ -238,7 +238,7 @@ collect.sview <- function(v) {
       rows <- nrows + 1L
     }
   }
-  res
+  tbl_df(res)
 }
 
 
