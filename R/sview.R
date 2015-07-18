@@ -17,16 +17,31 @@
 #'  view <- sview(ds)
 #' @export 
 sview <- function(ds) {
-v  = list(ds=ds,
-          partitions=NULL, 
-          columns=NULL,
-          filter=NULL,
+v  = list(ds=ds,  # Reference to source Dataset
+          partitions=NULL, # List of partitions - see partitions()
+          columns=NULL, # List of columns - see select()
+          filter=NULL, # Filter expression
           parsed=NULL,
-          bitmap=NULL,
-          klen=NULL,
+          bitmap=NULL, # Bitmaps after filter is applied
+          klen=NULL, # Length of each partition:split
           rows=0)
 class(v) <- "sview"
 v
+}
+
+#' Collect in Ram
+#'
+#'
+#' Collect_in_ram executes the rules setup in the view so far - storing the result in 
+#' a dataframe per partition. This is preferred if each partition still contains substantial data. 
+#' 
+#' @param v Scythica View
+#' @return A Scythica grouped dataset
+#' @examples
+#'  sdf <- collect_in_ram(v)
+#' @export
+collect_in_ram <- function(.v) {
+  UseMethod("collect_in_ram")
 }
 
 
@@ -119,6 +134,8 @@ rawrows <- function(.v) {
 
 
 #' Apply filter
+#' 
+#' Calling filter does execute code the update the filter bitmaps in the sview object.
 #'
 #' @param v Scythica View
 #' @param filter expressions
@@ -181,10 +198,13 @@ sv_nrow <- function(.v) {
 
 #' Collect query
 #'
+#' Collect executes the rules setup in the view so far - storing the result in 
+#' a single dataframe.
+#' 
 #' @param v Scythica View
 #' @return materialized dataframe
 #' @examples
-#'  view <- sview(views, "2008-01-03")
+#'  df <- collect(v)
 #' @export 
 collect.sview <- function(v) {
   types <- (v$ds)$col_types()
@@ -196,23 +216,26 @@ collect.sview <- function(v) {
     columns <- v$columns
   }
   
-  for (c in columns) {
-    col <- switch(types[c],
-             int32=integer(v$rows),
-             double=numeric(v$rows),
-             factor={ f<-integer(v$row); attr(f,'levels')<-(v$ds)$col_levels(c); class(f)<-'factor';f},
-             logical=logical(v$rows),
-             integer(v$rows))
-   
-    if (is.null(res)) {
-      res <- data.frame(col)
-      names(res)[1] = c
-    } else {
-      res <- cbind(res,col)   
-      names(res)[ncol(res)] = c
-    }
-  }
+  # Create the resulting data frame
+  res <- sview.create.df(v,columns,v$rows)
+  #for (c in columns) {
+  #  col <- switch(types[c],
+  #           int32=integer(v$rows),
+  #           double=numeric(v$rows),
+  #           factor={ f<-integer(v$row); attr(f,'levels')<-(v$ds)$col_levels(c); class(f)<-'factor';f},
+  #           logical=logical(v$rows),
+  #           integer(v$rows))
+  # 
+  #  if (is.null(res)) {
+  #    res <- data.frame(col)
+  #    names(res)[1] = c
+  #  } else {
+  #    res <- cbind(res,col)   
+  #    names(res)[ncol(res)] = c
+  #  }
+  #}
   
+  # Now fill in the dataframe, itereating over each partition
   rows = 1L;
   #rows_per_split <- (v$ds)$rows_per_split
   integer.vec <- new(s.factory$m$SIntVector)
@@ -241,7 +264,106 @@ collect.sview <- function(v) {
   tbl_df(res)
 }
 
+#' Collect In Ram query
+#'
+#' Collect_in_ram executes the rules setup in the view so far - storing the result in 
+#' a dataframe per partition. This is preferred if each partition still contains substantial data. 
+#' 
+#' @param v Scythica View
+#' @return A Scythica grouped dataset
+#' @examples
+#'  sdf <- collect_in_ram(v)
+#' @export 
+collect_in_ram.sview <- function(v) {
+  types <- (v$ds)$col_types()
+  res <- NULL
+  
+  if (is.null(v$columns)) {
+    columns <- (v$ds)$names()
+  } else {
+    columns <- v$columns
+  }
+  
+  # Figure out size of each dataframe, and allocate
+  dss <- hash()
+  for (i in 1:nrow(v$partitions)) {
+    splits <- (v$partitions)[i,"splits"]
+    p <- as.character((v$partition)[i,"partition"])
+    plen <- 0
+    for (s in 1:splits) {  
+      k <- sdataframe_key(p,s)
+      plen <- plen + v$klen[[k]]
+    }
+    dss[[p]] <- sview.create.df(v,columns,plen)
+  }
+  
+  
 
+  
+  # Create the set of Dataframes
+  res  = list(dss=dss)
+  class(res) <- "s_partitioned_df"
+  
+
+  
+  # Now fill in the dataframe, itereating over each partition
+  #rows = 1L;
+  #rows_per_split <- (v$ds)$rows_per_split
+#   integer.vec <- new(s.factory$m$SIntVector)
+#   numeric.vec <- new(s.factory$m$SNumericVector)
+#   factor.vec <- new(s.factory$m$SFactorVector)
+#   for (i in 1:nrow(v$partitions)) {
+#     splits <- (v$partitions)[i,"splits"]
+#     p <- as.character((v$partition)[i,"partition"])
+#     for (s in 1:splits) {  
+#       k <- sdataframe_key(p,s)
+#       nrows  <- rows + v$klen[[k]] - 1L
+#       for (c in columns) {
+#         col <- switch(types[c],
+#                       int32=integer.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
+#                       numeric=numeric.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
+#                       factor=factor.vec$collapse((v$ds)$splitn(p,s,c),(v$bitmap)[[k]]),
+#                       logical=NULL,
+#                       NULL)   
+#         if (!is.null(col)) {
+#           res[[c]][rows:nrows] <- col
+#         }
+#       }
+#       rows <- nrows + 1L
+#     }
+#   }
+#   tbl_df(res)
+  res
+}
+
+################################################################################
+## Helper funtions
+
+sview.create.df <- function(.v, columns, rows) { 
+  types <- (v$ds)$col_types()
+  res <- NULL
+  
+  
+  for (c in columns) {
+    col <- switch(types[c],
+                int32=integer(rows),
+                double=numeric(rows),
+                factor={ f<-integer(row); attr(f,'levels')<-(.v$ds)$col_levels(c); class(f)<-'factor';f},
+                logical=logical(rows),
+                integer(rows))
+  
+    if (is.null(res)) {
+      res <- data.frame(col)
+      names(res)[1] = c
+    } else {
+      res <- cbind(res,col)   
+      names(res)[ncol(res)] = c
+    }
+  }
+  res
+}
+
+################################################################################
 ## Helper funtions for filters
 
 #' @export 

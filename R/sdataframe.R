@@ -138,7 +138,7 @@ as_data_frame_split <- function (sds,partition,split=1) {
 #' @param split index
 #' @return Key
 #' @examples
-#'  k- sdataframe_key'2008-01-03',1)
+#'  k <- sdataframe_key('2008-01-03',1)
 #' @export
 sdataframe_key <- function(partition, split) {
   paste(partition,as.character(split),sep=":")

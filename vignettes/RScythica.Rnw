@@ -33,7 +33,7 @@ Effectivily the key to a vector consists of the partition plus the split index.
 
 \section{Simple Example}
 
-Typically you receive data in a large CSV file. Before it can be used in R, the CSV file need to be transformed in a binary Scythica dataset.
+Typically you receive data in a large CSV file. Before it can be used in R, the CSV file need to be transformed in a binary Scythica dataset. Scythica datasets are implements in R as S4 objects.
 
 \subsection{Creating a Dataset}
 
@@ -114,7 +114,9 @@ s
 @
 
 
-\subsection{Dplyr Style Pipeline}
+\section{Dplyr Style Pipeline}
+
+We recommend using dplyr style commands to manipulate and transform Scythica datasets.
 
 <<>>=
 # Create view / pipeline from a dataset

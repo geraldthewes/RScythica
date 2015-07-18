@@ -19,7 +19,8 @@ Depends:
     lazyeval,
     magrittr,
     dplyr (>= 0.4.0),
-    assertthat
+    assertthat,
+    hash
 RcppModules: rscythica
 Suggests:
     testthat
