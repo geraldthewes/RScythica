@@ -32,8 +32,12 @@ RScythica depends on the [scythica](http://github.com/geraldthewes/scythica) uti
 Linux (Ubuntu)
 ---------------
 
-sudo apt-get install libyaml-cpp-dev
-sudo apt-get install libmsgpack-dev
+`sudo apt-get install libyaml-cpp-dev`
+`sudo apt-get install libmsgpack-dev`
+`sudo apt-get install libboost-regex-dev`
+`sudo apt-get install libboost-iostreams-dev`
+
+
 
 
 
