@@ -36,8 +36,8 @@ Linux (Ubuntu)
 `sudo apt-get install libmsgpack-dev`
 `sudo apt-get install libboost-regex-dev`
 `sudo apt-get install libboost-iostreams-dev`
-
-
+`sudo apt-get install texlive-full`
+`sudo apt-get install libxml2-dev`
 
 
 

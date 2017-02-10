@@ -340,7 +340,7 @@ collect_in_ram.sview <- function(v) {
 ## Helper funtions
 
 sview.create.df <- function(.v, columns, rows) { 
-  types <- (v$ds)$col_types()
+  types <- (.v$ds)$col_types()
   res <- NULL
   
   
@@ -348,7 +348,7 @@ sview.create.df <- function(.v, columns, rows) {
     col <- switch(types[c],
                 int32=integer(rows),
                 double=numeric(rows),
-                factor={ f<-integer(row); attr(f,'levels')<-(.v$ds)$col_levels(c); class(f)<-'factor';f},
+                factor={ f<-integer(rows); attr(f,'levels')<-(.v$ds)$col_levels(c); class(f)<-'factor';f},
                 logical=logical(rows),
                 integer(rows))
   
