@@ -12,6 +12,7 @@ Lesser General Public License for more details.
 
 #include <sys/stat.h>
 
+#include <istream>
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -258,7 +259,7 @@ std::vector<std::string> SDataframe::getFactorLevels(string columnName) {
   msgpack::unpacker pac;
   pac.reserve_buffer(filestatus.st_size);
 
-  ifstream in_file;
+  std::ifstream in_file;
   in_file.open(dbf.c_str(),ios::in);
   if (!in_file) {
     string msg = "Unable to open  File:" + dbf;
